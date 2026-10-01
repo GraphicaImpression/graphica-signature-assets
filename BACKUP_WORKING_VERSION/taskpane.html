@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Signature Graphica</title>
+<link rel="stylesheet" href="taskpane.css" />
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+  <div class="brand">
+    <span class="logo-dot"></span> Graphica — Signature
+  </div>
+
+  <div id="stateLoading" class="state">
+    <p class="note">Chargement de votre signature…</p>
+  </div>
+
+  <div id="stateError" class="state" hidden>
+    <p class="note error" id="errorText"></p>
+  </div>
+
+  <div id="stateContent" class="state" hidden>
+    <div class="sig-card" id="sigCard"></div>
+
+    <div class="status-line" id="statusLine"></div>
+
+    <div class="reassure-box" id="defaultReassureBox" hidden>
+      Ceci est un aperçu seulement — rien n'est ajouté à votre message. Votre signature personnelle reste telle quelle ; le bloc Graphica s'ajoutera automatiquement à l'envoi.
+    </div>
+
+    <div id="activeOverrideBar" class="active-override-bar" hidden>
+      <b>✓ Signature <span id="activeOverrideLabel"></span> insérée dans ce courriel</b>
+    </div>
+
+    <div id="variantsSection" hidden>
+      <div class="section-title">Signatures disponibles</div>
+      <div id="variantsList"></div>
+    </div>
+
+    <button type="button" id="refreshBtn" class="refresh-btn">↻ Rafraîchir</button>
+  </div>
+
+  <script src="taskpane.js"></script>
+</body>
+</html>

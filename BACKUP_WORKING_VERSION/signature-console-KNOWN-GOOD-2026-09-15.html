@@ -1,0 +1,2650 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Console de signatures</title>
+<style>
+:root{
+  --bg:#faf9f6; --surface:#ffffff; --surface-2:#f4f2ec; --border:#e3e0d6;
+  --text:#1a1a1a; --text-dim:#5b5b5b; --text-faint:#8a8a8a;
+  --accent:#0768ad; --accent-ink:#ffffff; --accent-soft:#e8f1f8;
+  --ok:#1a7f4b; --ok-soft:#e7f6ee; --warn:#a5680a; --warn-soft:#fbf1de;
+  --danger:#b3311f; --danger-soft:#fbeae7;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --body-font:'Public Sans',system-ui,sans-serif;
+  --display-font:'Fraunces',Georgia,serif;
+  --shadow:0 1px 2px rgba(20,20,20,.06),0 8px 24px -12px rgba(20,20,20,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --surface:#1d1c16; --surface-2:#25241c; --border:#38362a;
+    --text:#f1efe6; --text-dim:#c2bfae; --text-faint:#8d8a76;
+    --accent:#5aa8de; --accent-ink:#0b1620; --accent-soft:#1e2c36;
+    --ok:#5ecb8f; --ok-soft:#153322; --warn:#e0ab52; --warn-soft:#332a14;
+    --danger:#e58274; --danger-soft:#3a1c17;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --surface:#1d1c16; --surface-2:#25241c; --border:#38362a;
+  --text:#f1efe6; --text-dim:#c2bfae; --text-faint:#8d8a76;
+  --accent:#5aa8de; --accent-ink:#0b1620; --accent-soft:#1e2c36;
+  --ok:#5ecb8f; --ok-soft:#153322; --warn:#e0ab52; --warn-soft:#332a14;
+  --danger:#e58274; --danger-soft:#3a1c17;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--body-font);margin:0;}
+.wrap{max-width:1500px;margin:0;padding:24px 22px 80px;}
+h1,h2,h3{font-family:var(--display-font);font-weight:600;margin:0;}
+h1{font-size:24px;} h2{font-size:15px;} h3{font-size:14px;}
+code,.mono{font-family:var(--mono);}
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.tag{display:inline-block;font-size:11px;font-family:var(--mono);letter-spacing:.03em;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);}
+.lede{color:var(--text-dim);font-size:13.5px;max-width:58ch;margin-top:6px;line-height:1.5;}
+input[type=text],input[type=url],input[type=password],input[type=color],textarea,select{
+  font-family:var(--body-font);font-size:13px;background:var(--surface);color:var(--text);
+  border:1px solid var(--border);border-radius:6px;padding:7px 9px;width:100%;
+}
+textarea{font-family:var(--mono);font-size:12px;resize:vertical;}
+label{font-size:11.5px;color:var(--text-faint);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
+.field{margin-bottom:12px;}
+button{font-family:var(--body-font);font-size:12.5px;font-weight:600;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:7px 13px;cursor:pointer;}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+button.danger{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
+button.ghost{background:transparent;border-color:transparent;color:var(--accent);padding:4px 6px;}
+button.sm{padding:4px 9px;font-size:11.5px;}
+button:disabled{opacity:.45;cursor:not-allowed;}
+button:hover:not(:disabled){filter:brightness(0.97);}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:var(--shadow);min-width:0;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.hr{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.modebar{display:flex;gap:6px;flex-wrap:wrap;}
+.modebar button{flex:1;padding:6px 4px;font-size:11.5px;min-width:0;white-space:normal;}
+.modebar button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.cmd{background:#0d1117;color:#c9d1d9;border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:12px;overflow-x:auto;white-space:pre;line-height:1.6;}
+.copybtn{float:right;}
+details summary{cursor:pointer;font-size:13px;font-weight:600;padding:4px 0;}
+.danger-zone{margin:0 18px 18px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;}
+.danger-zone summary{color:var(--text-faint);font-size:12px;}
+.note{font-size:12px;color:var(--text-faint);line-height:1.5;}
+.badge-inline{font-size:10.5px;background:var(--surface-2);color:var(--text-faint);padding:1px 6px;border-radius:4px;margin-left:6px;}
+.status-line{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text-faint);}
+.dot.ok{background:var(--ok);}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:8px 16px;border-radius:6px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:2000;}
+/* z-index:2000 puts it ABOVE .modal-backdrop's z-index:1000 — without this,
+   any toast() fired while a modal/popup is open (e.g. adding a department,
+   or an error from that save) rendered invisibly behind the modal overlay.
+   That was a real bug: a save could succeed or fail silently from the
+   user's point of view, since neither the confirmation nor the error
+   message could ever be seen while the popup was up. */
+.toast.show{opacity:1;}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,20,20,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:24px;max-width:380px;width:100%;text-align:center;}
+.modal-box .modal-icon{font-size:32px;line-height:1;margin-bottom:10px;}
+.modal-box h3{font-size:16px;margin-bottom:8px;}
+.modal-box p{font-size:13px;color:var(--text-dim);line-height:1.5;margin:0 0 18px;}
+/* NOT a blanket ".modal-box button{width:100%;}" rule — that used to force
+   every button inside every popup to full width, including small buttons
+   meant to sit beside an input (like "Ajouter" next to the new-department
+   field) or side-by-side pairs (Annuler/Confirmer) — squeezing whatever
+   shared the row down to nothing. Full-width buttons that actually want it
+   (like this "Compris" button) set it explicitly with an inline style
+   instead. */
+
+/* top-level nav */
+.nav-tabs{display:flex;gap:22px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+.nav-tabs button{font-family:var(--body-font);font-size:13px;font-weight:600;color:var(--text-faint);background:none;border:none;border-bottom:2px solid transparent;padding:9px 0;cursor:pointer;}
+.nav-tabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-tabs button .n{font-family:var(--mono);font-size:10.5px;background:var(--surface-2);color:var(--text-faint);padding:1px 6px;border-radius:999px;margin-left:6px;}
+.nav-view{display:none;}
+.nav-view.active{display:block;}
+
+/* Employés + editor layout — order: liste, aperçu, réglages */
+.layout{display:grid;grid-template-columns:var(--emp-col,280px) var(--apercu-col,380px) var(--settings-col,1fr);gap:16px;align-items:start;}
+.settings-col{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.settings-col-wrap{position:relative;min-width:0;}
+/* align-self:stretch overrides the grid's align-items:start just for this
+   column, so it's as tall as the row (i.e. as tall as the longer settings
+   column next to it) — without that extra height, position:sticky on the
+   Aperçu card inside has nowhere to "stick" and scrolls away with the page
+   as soon as its own short wrapper ends. */
+.apercu-col-wrap{position:relative;min-width:0;align-self:stretch;}
+.per-emp-box{margin-top:14px;padding:10px 12px;border:1px dashed var(--border);border-radius:8px;background:var(--surface-2);}
+.per-emp-box label{margin-bottom:6px;}
+.badge-override{font-size:9.5px;font-family:var(--mono);background:var(--accent-soft);color:var(--accent);padding:1px 6px;border-radius:999px;text-transform:none;letter-spacing:0;}
+.ghost-revert{background:transparent;border-color:transparent;color:var(--accent);white-space:nowrap;padding:4px 6px;font-size:11.5px;}
+.ghost-revert:hover{text-decoration:underline;}
+.emp-col-wrap{position:relative;}
+.emp-panel{height:620px;display:flex;flex-direction:column;}
+.emp-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.search{margin-bottom:10px;}
+.emp-list{flex:1;min-height:0;overflow-y:scroll;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.emp-list::-webkit-scrollbar{width:9px;}
+.emp-list::-webkit-scrollbar-track{background:transparent;}
+.emp-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+.emp-list::-webkit-scrollbar-thumb:hover{background:var(--text-faint);}
+.emp-row{display:flex;align-items:flex-start;gap:9px;padding:8px;border-radius:8px;cursor:pointer;}
+.emp-row:hover{background:var(--surface-2);}
+.emp-row.active{background:var(--accent-soft);}
+.avatar{width:28px;height:28px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.emp-row-body{min-width:0;flex:1;}
+.emp-row-top .name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+.emp-row .em{color:var(--text-faint);font-size:11px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;}
+.pill{font-size:9.5px;font-family:var(--mono);padding:2px 7px;border-radius:999px;white-space:normal;line-height:1.3;}
+.pill.draft{background:var(--warn-soft);color:var(--warn);}
+.pill.approved{background:var(--ok-soft);color:var(--ok);}
+.pill.override{background:var(--accent-soft);color:var(--accent);}
+.pill.dept{background:var(--surface-2);color:var(--text-dim);}
+
+/* Batch selection — department filter + multi-select + bulk action bar,
+   all inside the existing Employés column (no new tab/screen). */
+.select-toggle a, .select-toggle span[role="button"]{cursor:pointer;}
+.bulk-bar{margin-top:2px;padding:10px;border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;}
+.bulk-bar b{color:var(--accent);}
+.bulk-bar .bulk-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.bulk-bar .bulk-actions button{flex:1;min-width:0;}
+.empCheckbox{margin-top:7px;width:15px;height:15px;flex-shrink:0;}
+
+/* Département manager — per-department "add members" panel: chip list of
+   current members plus a type-ahead search to add more. */
+.dept-member-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;background:var(--surface);border:1px solid var(--border);padding:3px 8px;border-radius:999px;margin:2px 4px 2px 0;}
+.dept-member-chip button{background:none;border:none;padding:0;font-size:11px;line-height:1;cursor:pointer;color:var(--text-faint);}
+.dept-member-chip button:hover{color:var(--danger);}
+.dept-emp-suggestions{border:1px solid var(--border);border-radius:6px;margin-top:4px;max-height:170px;overflow-y:auto;background:var(--surface);}
+.dept-emp-suggestion{padding:6px 9px;font-size:12.5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;}
+.dept-emp-suggestion:hover{background:var(--accent-soft);}
+.dept-emp-suggestion .em{color:var(--text-faint);font-size:11px;}
+
+.resize-handle{position:absolute;top:0;right:-9px;width:18px;height:100%;cursor:col-resize;display:flex;align-items:center;justify-content:center;z-index:5;}
+.resize-handle::after{content:"";width:4px;height:40px;border-radius:3px;background:var(--border);}
+.resize-handle:hover::after{background:var(--accent);}
+body.resizing{cursor:col-resize;user-select:none;}
+
+@media (max-width:1300px){
+  .layout{grid-template-columns:var(--emp-col,280px) 1fr;}
+  .apercu-col-wrap{grid-column:1 / -1;}
+}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr;}
+  .apercu-col-wrap{grid-column:auto;}
+  .emp-col-wrap .resize-handle, .apercu-col-wrap .resize-handle, .settings-col-wrap .resize-handle{display:none;}
+}
+.editor-panel{padding:0;overflow:hidden;}
+.editor-head{padding:16px 18px 0;}
+.editor-head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.who-name{font-size:17px;}
+.em-sub{font-size:12px;color:var(--text-faint);font-family:var(--mono);}
+.stage-track{display:flex;align-items:center;font-size:11px;font-family:var(--mono);color:var(--text-faint);margin-top:10px;flex-wrap:wrap;gap:2px;}
+.stage-step{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface-2);}
+.stage-step.current{background:var(--accent);color:#fff;font-weight:600;}
+.stage-step.pending{opacity:.5;}
+.stage-arrow{padding:0 4px;color:var(--border);}
+
+.tabs{display:flex;gap:2px;padding:14px 18px 0;border-bottom:1px solid var(--border);margin-top:14px;overflow-x:auto;}
+.tabs button{font-family:var(--body-font);font-size:12.5px;font-weight:600;color:var(--text-faint);background:none;border:none;border-bottom:2px solid transparent;padding:9px 10px;cursor:pointer;white-space:nowrap;}
+.tabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-body{padding:18px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.section-title{font-size:12.5px;font-weight:700;margin:18px 0 8px;}
+.section-title:first-child{margin-top:0;}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.chip:hover{border-color:var(--accent);}
+.chip .d{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.swatch{width:26px;height:26px;border-radius:7px;cursor:pointer;border:2px solid transparent;}
+.swatch.selected{border-color:var(--text);}
+.color-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.color-row input[type=color]{width:36px;height:32px;padding:2px;flex-shrink:0;}
+.color-row input[type=text]{width:110px;max-width:110px;min-width:70px;font-family:var(--mono);flex:1 1 70px;}
+.togglebar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.togglebar button{flex:1;min-width:0;}
+.togglebar button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.dropzone{border:1.5px dashed var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;background:var(--surface-2);}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:var(--accent-soft);}
+.dropzone-inner{font-size:12px;color:var(--text-faint);pointer-events:none;}
+.dropzone .dz-preview{display:block;max-width:100%;max-height:120px;margin:0 auto 8px;border-radius:6px;pointer-events:none;}
+.dropzone .dz-filename{font-size:11px;color:var(--text-dim);margin-top:4px;pointer-events:none;}
+
+.cal-wrap{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:20px;align-items:start;margin-top:10px;}
+@media (max-width:760px){.cal-wrap{grid-template-columns:minmax(0,1fr);}}
+.mini-cal{border:1px solid var(--border);border-radius:10px;padding:12px;min-width:0;}
+.mini-cal-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;margin-bottom:8px;}
+.mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:11px;text-align:center;}
+.mini-cal-grid .dow{color:var(--text-faint);font-weight:600;padding-bottom:3px;}
+.mini-cal-grid .day{padding:6px 0;border-radius:6px;color:var(--text-dim);cursor:default;}
+.mini-cal-grid .day.muted{color:var(--border);}
+.mini-cal-grid .day.holiday{background:var(--accent-soft);color:var(--accent);font-weight:700;cursor:pointer;}
+.mini-cal-grid .day.holiday:hover{background:var(--accent);color:#fff;}
+.mini-cal-grid .day.selected{background:var(--accent);color:#fff;}
+.mini-cal-grid .day.today{outline:1.5px solid var(--accent);}
+.icon-lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:12px;margin-top:4px;max-width:460px;}
+.icon-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:4px 2px;border-radius:8px;}
+.icon-tile:hover{background:var(--surface-2);}
+.icon-tile .swatch{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border);background:#ffffff;transition:transform .1s,box-shadow .1s;position:relative;}
+.icon-tile .swatch svg{width:22px;height:22px;}
+.icon-tile:hover .swatch{transform:translateY(-2px);}
+.icon-tile.selected .swatch{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.icon-tile .name{font-size:9.5px;color:var(--text-dim);text-align:center;line-height:1.2;}
+.icon-tile.none .swatch{background:var(--surface-2);border:1px dashed var(--border);}
+.icon-tile.none .swatch span{font-size:18px;color:var(--text-faint);}
+/* Color picker lives in a fixed strip below the whole grid — never a floating
+   box over another tile — so it can't be intercepted by a neighboring icon. */
+.swatch.light{box-shadow:inset 0 0 0 1px var(--border);}
+
+/* Collapsible company-settings sections (Bannière saisonnière/promotionnelle,
+   Bloc de production) — plain <details>, styled so the summary reads like
+   the h2 it replaces, with its own disclosure arrow instead of the browser
+   default (kept separate from the generic `details summary` rule used
+   elsewhere — like "Forcer des valeurs différentes" and "Zone dangereuse" —
+   so those aren't affected). */
+.section-details{margin-bottom:2px;}
+.section-details > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--display-font);font-weight:600;font-size:15px;padding:4px 0;}
+.section-details > summary::-webkit-details-marker{display:none;}
+.section-details > summary::before{content:'▸';font-size:11px;color:var(--text-faint);display:inline-block;transition:transform .15s;}
+.section-details[open] > summary::before{transform:rotate(90deg);}
+.section-details > summary + *{margin-top:6px;}
+
+/* The "save" action — visually distinct from every other button (which use
+   the accent blue) so it's unmistakably the save button. */
+.save-btn{background:var(--ok);border-color:var(--ok);color:#fff;}
+
+/* preview (pinned) */
+.preview-panel{position:sticky;top:18px;padding:16px;}
+.preview-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.preview-chrome{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface-2);}
+.preview-mailhead{background:#fff;border-bottom:1px solid var(--border);padding:10px 14px;font-size:12px;color:var(--text-dim);}
+.preview-mailhead div{margin-bottom:2px;}
+.preview-mailhead b{color:var(--text);font-weight:600;}
+.preview-body{background:#fff;padding:16px;}
+iframe.preview{width:100%;border:none;background:#fff;display:block;}
+.empty-preview{padding:60px 20px;text-align:center;color:var(--text-faint);font-size:13px;}
+</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="tag">Console de signatures</span>
+      <h1>Gestion des signatures — Graphica</h1>
+    </div>
+    <div class="status-line"><span class="dot" id="dbDot"></span><span id="dbStatus">Connexion…</span></div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="active" data-nav="employes">Employés <span class="n" id="empCount">0</span></button>
+    <button data-nav="reglages">Réglages de l'entreprise</button>
+  </div>
+
+  <!-- ===== VUE EMPLOYÉS ===== -->
+  <div class="nav-view active" id="view-employes">
+    <div class="layout">
+      <div class="emp-col-wrap">
+        <div class="panel emp-panel">
+          <div class="emp-panel-head">
+            <h2>Employés</h2>
+            <button class="primary sm" id="addEmpBtn">+ Nouveau</button>
+          </div>
+          <div id="newEmpForm" style="display:none;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);">
+            <div class="field" style="margin-bottom:8px;"><label>Courriel</label><input type="text" id="newEmpEmail" placeholder="prenom.nom@graphica.qc.ca"></div>
+            <div class="field" style="margin-bottom:8px;"><label>Nom affiché</label><input type="text" id="newEmpName" placeholder="Comme dans l'annuaire"></div>
+            <div style="display:flex;gap:6px;">
+              <button class="primary sm" id="newEmpCreateBtn">Créer</button>
+              <button class="sm" id="newEmpCancelBtn">Annuler</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <select id="deptFilter" style="flex:1;"></select>
+            <button type="button" class="sm" id="deptManageBtn" title="Gérer les départements">⚙</button>
+          </div>
+          <input type="text" id="empSearch" class="search" placeholder="Rechercher…">
+          <div class="select-toggle" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap;">
+            <span class="note" id="empVisibleCount"></span>
+            <span style="display:flex;gap:10px;">
+              <span class="note" id="selectAllLink" style="color:var(--accent);display:none;">☑ Tout sélectionner</span>
+              <span class="note" id="bulkToggleLink" style="color:var(--accent);">☑ Sélection multiple</span>
+            </span>
+          </div>
+          <div id="bulkBar"></div>
+          <div class="emp-list" id="empList"></div>
+        </div>
+        <div class="resize-handle" id="empResizeHandle"></div>
+      </div>
+
+      <div class="apercu-col-wrap">
+        <div class="panel preview-panel">
+          <div class="preview-panel-head"><h2>Aperçu</h2></div>
+          <div id="previewHost"></div>
+        </div>
+        <div class="resize-handle" id="apercuResizeHandle"></div>
+      </div>
+
+      <div class="settings-col-wrap">
+      <div class="settings-col">
+        <div id="editorHost">
+          <div class="panel"><p class="note">Sélectionnez un employé à gauche, ou créez-en un nouveau.</p></div>
+        </div>
+
+        <div class="panel" id="companySettingsPanel">
+          <details class="section-details">
+          <summary>🎉 Bannière saisonnière</summary>
+          <p class="note" style="margin-top:6px;">S'applique à tout le monde, sauf exception forcée pour la personne sélectionnée à gauche.</p>
+          <div class="field" style="margin-top:10px;">
+            <div class="modebar">
+              <button data-val="off" id="bSeasOff">Désactivée par défaut</button>
+              <button data-val="on" id="bSeasOn">Activée par défaut</button>
+            </div>
+          </div>
+          <div class="togglebar" style="margin-top:10px;">
+            <button data-val="text" id="seasKindText">📝 Texte</button>
+            <button data-val="image" id="seasKindImage">🖼️ Image</button>
+          </div>
+          <div class="field" style="margin-top:10px;"><label>Lien (optionnel)</label><input type="url" id="cSeasLink" placeholder="https://graphica.qc.ca/promotion"></div>
+          <div id="seasTextFields">
+            <div class="cal-wrap">
+              <div class="mini-cal">
+                <div class="mini-cal-head">
+                  <button type="button" class="sm" id="calPrevBtn">‹</button>
+                  <span id="calMonthLabel"></span>
+                  <button type="button" class="sm" id="calNextBtn">›</button>
+                </div>
+                <div class="mini-cal-grid" id="calGrid"></div>
+              </div>
+              <div>
+                <div class="field"><label>Date de référence</label><input type="text" id="cSeasDate" placeholder="ex. 7 septembre 2026" disabled></div>
+                <div class="field"><label>Titre</label><input type="text" id="cSeasTitle" placeholder="ex. FERMÉ — FÊTE DU TRAVAIL"></div>
+                <div class="field"><label>Texte</label><input type="text" id="cSeasText" placeholder="ex. Nos bureaux seront fermés…"></div>
+                <div class="section-title" style="margin-top:0;">Couleur (palette de la marque)</div>
+                <div class="swatches" id="brandSwatches"></div>
+                <div class="color-row">
+                  <input type="color" id="cSeasColorPicker" value="#0768ad">
+                  <input type="text" id="cSeasColor" value="#0768AD">
+                </div>
+                <div class="section-title">Icône (optionnel)</div>
+                <div class="icon-lib-grid" id="iconGrid"></div>
+              </div>
+            </div>
+          </div>
+          <div id="seasImageFields" style="display:none;margin-top:10px;">
+            <div class="dropzone" id="seasDropzone">
+              <input type="file" id="seasFileInput" accept="image/*" style="display:none;">
+              <div class="dropzone-inner" id="seasDropzoneInner"><span>Glissez une image ici, ou cliquez pour en choisir une</span></div>
+            </div>
+            <p class="note" style="margin-top:8px;">Cette image ne s'affiche ici qu'en aperçu local — pour qu'elle apparaisse dans les vrais courriels, téléversez-la dans votre bibliothèque média Wix (comme le logo), puis collez le lien ci-dessous.</p>
+            <div class="field" style="margin-top:10px;"><label>Image — URL hébergée</label><input type="url" id="cSeasImageUrl" placeholder="https://…/banniere.jpg"></div>
+            <p class="note" style="margin-top:-6px;"><b>Taille recommandée :</b> 600 px de large (même largeur que le bloc « Délai de production »), hauteur libre — environ 100 à 150 px de haut donne un bon ratio. Exportez à 1200 px de large (2x) pour un rendu net sur écrans haute résolution, moins de 200 Ko, format JPG ou PNG hébergé sur Wix.</p>
+          </div>
+          <div class="per-emp-box" id="seasPerEmpBox"></div>
+          </details>
+
+          <hr class="hr">
+          <details class="section-details">
+          <summary>📣 Bannière promotionnelle</summary>
+          <p class="note" style="margin-top:6px;">Un deuxième espace, affiché sous la bannière saisonnière.</p>
+          <div class="field" style="margin-top:10px;">
+            <div class="modebar">
+              <button data-val="off" id="bPromoOff">Désactivée par défaut</button>
+              <button data-val="on" id="bPromoOn">Activée par défaut</button>
+            </div>
+          </div>
+          <div class="togglebar">
+            <button data-val="image" id="promoKindImage">🖼️ Image</button>
+            <button data-val="text" id="promoKindText">📝 Texte</button>
+          </div>
+          <div id="promoImageFields">
+            <div class="dropzone" id="promoDropzone">
+              <input type="file" id="promoFileInput" accept="image/*" style="display:none;">
+              <div class="dropzone-inner" id="promoDropzoneInner"><span>Glissez une image ici, ou cliquez pour en choisir une</span></div>
+            </div>
+            <p class="note" style="margin-top:8px;">Cette image ne s'affiche ici qu'en aperçu local — pour qu'elle apparaisse dans les vrais courriels, téléversez-la dans votre bibliothèque média Wix, puis collez le lien ci-dessous.</p>
+            <div class="field" style="margin-top:10px;"><label>Image — URL hébergée</label><input type="url" id="cPromoImageUrl" placeholder="https://…/promo.png"></div>
+            <p class="note" style="margin-top:-6px;"><b>Taille recommandée :</b> 600 px de large (même largeur que le bloc « Délai de production »), hauteur libre — environ 100 à 150 px de haut donne un bon ratio. Exportez à 1200 px de large (2x) pour un rendu net sur écrans haute résolution, moins de 200 Ko, format PNG ou JPG hébergé sur Wix.</p>
+            <div class="field"><label>Lien (optionnel)</label><input type="url" id="cPromoLink" placeholder="https://graphica.qc.ca/promotion"></div>
+          </div>
+          <div class="field" id="promoTextField" style="display:none;"><label>Texte de la promotion</label><textarea id="cPromoText" rows="2"></textarea></div>
+          <div class="per-emp-box" id="promoPerEmpBox"></div>
+          </details>
+
+          <hr class="hr">
+          <details class="section-details">
+          <summary>🏭 Bloc de production &amp; ⚖️ confidentialité</summary>
+          <div class="field" style="margin-top:10px;"><label>Texte du bloc de production</label><textarea id="cProductionText" rows="3"></textarea></div>
+          <div class="field"><label>Message de confidentialité</label><textarea id="cDisclaimerText" rows="2"></textarea></div>
+          </details>
+
+          <hr class="hr">
+          <details class="section-details">
+          <summary>🔀 Exceptions</summary>
+          <p class="note" style="margin-top:6px;">Employés dont la bannière saisonnière ou promotionnelle diffère du réglage de l'entreprise. Tout le monde qui n'est pas ici suit automatiquement les réglages ci-dessus.</p>
+          <div id="exceptionsList" style="margin-top:8px;"></div>
+          </details>
+
+          <button id="saveCompanyBtn2" class="save-btn" style="width:100%;margin-top:14px;">💾 Enregistrer</button>
+        </div>
+      </div>
+      <div class="resize-handle" id="settingsResizeHandle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== VUE RÉGLAGES ===== -->
+  <div class="nav-view" id="view-reglages">
+    <div class="panel" style="max-width:920px;">
+      <h2>Coordonnées de l'entreprise</h2>
+      <p class="note" style="margin-top:8px;">Valeurs utilisées pour tout le monde par défaut. Pour une personne en particulier, ouvrez sa fiche dans Employés → « Forcer des valeurs différentes ».</p>
+      <div class="field" style="margin-top:12px;"><label>Téléphone</label><input type="text" id="cPhone"></div>
+      <div class="field"><label>Adresse</label><input type="text" id="cAddress"></div>
+      <div class="row2">
+        <div class="field"><label>Site web — URL</label><input type="url" id="cWebUrl"></div>
+        <div class="field"><label>Site web — texte</label><input type="text" id="cWebLabel"></div>
+      </div>
+      <div class="field"><label>Logo — URL hébergée</label><input type="url" id="cLogo"></div>
+      <p class="note"><b>Taille recommandée :</b> environ 342×96 px (ratio 3.5:1), fond transparent (PNG), moins de 100 Ko.</p>
+      <p class="note">Le logo et les icônes de contact doivent être hébergés en ligne (comme sur Wix actuellement) — le courriel envoyé va chercher l'image à cette adresse. On ne peut pas encore téléverser un fichier directement ici.</p>
+      <p class="note">Les bandeaux saisonnier/promotionnel, le bloc de production et le message de confidentialité se règlent maintenant dans l'onglet Employés, à côté de l'aperçu.</p>
+
+      <hr class="hr">
+      <div class="field"><label>Dossier « Signature Studio » sur votre ordinateur</label><input type="text" id="cLocalPath" placeholder="~/Documents/Signature Studio"></div>
+      <p class="note" style="margin-top:-6px;">Utilisé seulement pour construire la commande prête-à-coller dans l'onglet Approbation, pour qu'elle fonctionne depuis n'importe quelle nouvelle fenêtre de terminal — sans avoir à vous déplacer dans le bon dossier ou démarrer PowerShell vous-même au préalable.</p>
+
+      <button id="saveCompanyBtn" class="save-btn" style="width:100%;margin-top:6px;">💾 Enregistrer</button>
+
+      <hr class="hr">
+      <details>
+        <summary>Code PIN</summary>
+        <p class="note">Confirme une approbation — pas une vraie sécurité.</p>
+        <div class="field"><label>Nouveau code</label><input type="text" id="cPin" placeholder="4 à 6 chiffres"></div>
+        <button id="savePinBtn">Mettre à jour</button>
+      </details>
+
+      <hr class="hr">
+      <details class="danger-zone">
+        <summary>Zone dangereuse</summary>
+        <div style="margin-top:10px;">
+          <label>Bandeau saisonnier — HTML (généré automatiquement)</label>
+          <div class="field" style="margin-top:4px;"><textarea id="cBannerHtml" rows="4" readonly></textarea></div>
+          <p class="note" style="margin-top:-6px;">Ce code se met à jour tout seul pendant que vous modifiez le titre, le texte, la couleur ou l'icône (dans Employés) — il n'est plus modifiable directement ici, pour éviter qu'une ancienne version reste collée par erreur.</p>
+          <label style="margin-top:10px;">Bandeau promotionnel — HTML (généré automatiquement)</label>
+          <div class="field" style="margin-top:4px;"><textarea id="cPromoHtml" rows="4" readonly></textarea></div>
+          <p class="note" style="margin-top:-6px;">Ce code se met à jour tout seul pendant que vous modifiez l'image, le lien ou le texte ci-dessus — il n'est plus modifiable directement ici, pour éviter qu'une ancienne version reste collée par erreur.</p>
+          <p class="note" style="margin-top:4px;">Ces deux champs sont enregistrés avec le bouton « Enregistrer les réglages de l'entreprise » ci-dessus.</p>
+
+          <hr class="hr" style="margin:16px 0;">
+          <label>Supprimer un employé</label>
+          <p class="note" style="margin:4px 0 8px;">Choisissez une personne dans la liste, puis confirmez. Ceci supprime définitivement sa fiche de la Console.</p>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="reglagesDelEmpSelect" style="flex:1;min-width:220px;font-family:var(--body-font);font-size:13px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 9px;"></select>
+            <button class="danger sm" id="reglagesDelEmpBtn">Supprimer cet employé de la Console…</button>
+          </div>
+          <div id="reglagesDelEmpConfirm" style="display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--danger);background:var(--danger-soft);border-radius:8px;">
+            <p class="note" style="color:var(--danger);margin:0 0 8px;" id="reglagesDelEmpConfirmText"></p>
+            <div style="display:flex;gap:8px;">
+              <button class="danger sm" id="reglagesDelEmpConfirmBtn">Oui, supprimer définitivement</button>
+              <button class="sm" id="reglagesDelEmpCancelBtn">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const slugify = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'employe';
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._h); toast._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function copyText(str){
+  navigator.clipboard?.writeText(str).then(()=>toast('Copié.')).catch(()=>toast('Copie impossible — sélectionnez le texte manuellement.'));
+}
+
+// A modal pop-up, unlike the small toast, stays on screen until the person
+// dismisses it — used for moments worth a clear confirmation, like approving
+// a signature for test deployment.
+function showModal(icon, title, message){
+  const old = document.querySelector('.modal-backdrop');
+  if(old) old.remove();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal-box">
+    <div class="modal-icon">${icon}</div>
+    <h3>${esc(title)}</h3>
+    <p>${message}</p>
+    <button class="primary" id="modalOkBtn" style="width:100%;">Compris</button>
+  </div>`;
+  document.body.appendChild(backdrop);
+  const close = ()=>backdrop.remove();
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) close(); });
+  backdrop.querySelector('#modalOkBtn').addEventListener('click', close);
+}
+
+/* Deployed/exported HTML keeps the real hosted icons/logo — unchanged from before. */
+const DEFAULT_TEMPLATE = `<table cellpadding="0" cellspacing="0" width="600" role="presentation" style="width:600px;min-width:600px;max-width:600px;table-layout:fixed;font-family:Arial,Helvetica,sans-serif;border-collapse:collapse;">
+<tr>
+  <td width="171" style="width:171px;min-width:171px;max-width:171px;padding-right:10px;border-right:2px solid #0768ad;vertical-align:top;"><img src="{{LOGO_URL}}" alt="Graphica" width="171" height="48" style="width:171px;min-width:171px;max-width:171px;height:48px;display:block;"></td>
+  <td width="407" style="width:407px;min-width:407px;max-width:407px;padding-left:10px;vertical-align:top;">
+    <table cellpadding="0" cellspacing="0">
+      <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:600;color:#1a1a1a;padding-bottom:1px;">{{NAME}}</td></tr>
+      <tr><td style="font-size:13.5px;color:#0768ad;font-weight:600;padding-bottom:6px;">{{TITLE}}</td></tr>
+      <tr><td style="padding:2px 0;font-size:13.5px;"><img class="sig-icon" src="https://static.wixstatic.com/media/9109ec_d77bdf6f653444339c5f0180ee74281d~mv2.png" width="15" height="15" style="width:15px;height:15px;vertical-align:-2px;margin-right:9px;display:inline-block;border:0;"><a href="tel:{{PHONE}}" style="color:#444;text-decoration:none;">{{PHONE}}</a></td></tr><tr><td style="padding:2px 0;font-size:13.5px;"><img class="sig-icon" src="https://static.wixstatic.com/media/9109ec_39d0cce076ff4cf3bf07c24100e1cbf7~mv2.png" width="15" height="15" style="width:15px;height:15px;vertical-align:-2px;margin-right:9px;display:inline-block;border:0;"><a href="mailto:{{EMAIL}}" style="color:#444;text-decoration:none;">{{EMAIL}}</a></td></tr><tr><td style="padding:2px 0;color:#444;font-size:13.5px;"><img class="sig-icon" src="https://static.wixstatic.com/media/9109ec_fa6e0d7fe0454b46a5de007421c30dd9~mv2.png" width="15" height="15" style="width:15px;height:15px;vertical-align:-2px;margin-right:9px;display:inline-block;border:0;">{{ADDRESS}}</td></tr><tr><td style="padding:2px 0 0;font-size:13.5px;font-weight:600;"><img class="sig-icon" src="https://static.wixstatic.com/media/9109ec_ed895b33c4e049f0b8393804f0c32a69~mv2.png" width="15" height="15" style="width:15px;height:15px;vertical-align:-2px;margin-right:9px;display:inline-block;border:0;"><a href="{{WEBSITE_URL}}" style="color:#0768ad;text-decoration:none;">{{WEBSITE_LABEL}}</a></td></tr>
+    </table>
+  </td>
+</tr>
+
+<tr><td colspan="2" style="padding-top:14px;">
+  <table cellpadding="0" cellspacing="0" style="width:100%;background:#f4f2ec;border-radius:4px;">
+    <tr><td style="padding:10px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12.5px;color:#555;line-height:1.5;">
+      {{PRODUCTION_TEXT}}
+    </td></tr>
+  </table>
+</td></tr>
+{{BANNER_BLOCK}}{{PROMO_BLOCK}}
+<tr><td colspan="2" style="padding-top:14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8a8a8a;line-height:1.4;">{{DISCLAIMER_TEXT}}</td></tr>
+</table>`;
+
+const DEFAULT_COMPANY = {
+  companyPhone: "",
+  companyAddress: "1670, rue Semple, bureau 150, Québec (Québec) G1N 4B8",
+  companyWebsiteUrl: "https://graphica.qc.ca",
+  companyWebsiteLabel: "graphica.qc.ca",
+  companyLogoUrl: "https://static.wixstatic.com/media/9109ec_a2930dad67464599bda9518871dc66c8~mv2.png",
+  seasonalBannerEnabled: true,
+  seasonalTitle: "FERMÉ — FÊTE DU TRAVAIL",
+  seasonalText: "Nos bureaux seront fermés le lundi 7 septembre 2026. Nous serons de retour le mardi 8 septembre.",
+  seasonalColor: "#0768AD",
+  seasonalIconId: null,
+  seasonalBannerMode: "text",
+  seasonalImageUrl: "",
+  seasonalLink: "",
+  iconLibrary: { calendrier:"", fete:"", cadeau:"", flocon:"", annonce:"", etoile:"", horloge:"", feuille:"", "promo-chaud":"", coeur:"", gateau:"", bureau:"", evenement:"", fidelite:"" },
+  seasonalBannerHtml: `<tr><td colspan="2" style="padding-top:8px;">
+  <table cellpadding="0" cellspacing="0" style="width:100%;background:#0768AD;border-radius:4px;"><tr>
+    <td style="padding:10px 14px 10px 14px;font-family:Arial,Helvetica,sans-serif;">
+      <div style="color:#ffffff;font-size:12.5px;font-weight:700;letter-spacing:.02em;">FERMÉ — FÊTE DU TRAVAIL</div>
+      <div style="color:#cfe4f2;font-size:11px;margin-top:2px;">Nos bureaux seront fermés le lundi 7 septembre 2026. Nous serons de retour le mardi 8 septembre.</div>
+    </td>
+  </tr></table>
+</td></tr>`,
+  promoBannerEnabled: false,
+  promoBannerMode: "image",
+  promoImageUrl: "",
+  promoLink: "",
+  promoText: "",
+  promoBannerHtml: "",
+  productionText: `<b>Délai de production :</b> généralement de 2 à 10 jours ouvrables, selon la nature du projet. Délais accélérés disponibles <span style="white-space:nowrap;">sur demande.</span><br>\nPrendre note que nos bureaux sont fermés à compter de midi les vendredis.`,
+  disclaimerText: ``,
+  generalRuleName: "Company Email Signature",
+  pin: null,
+  localStudioPath: "~/Documents/Signature Studio",
+  departments: []
+};
+
+let db = null, dbAvailable = false;
+let company = null, template = null, employees = [], activeId = null;
+// Which tab (coord/deploy) is showing in the editor panel. Kept outside
+// renderEditor() so a re-render triggered by a db write (e.g. approve()'s
+// own update, echoed back via onSnapshot) doesn't silently snap the user
+// back to Coordonnées while they're mid-way through Approbation — that was
+// a real bug: approving used to bounce you away from the command you were
+// about to copy.
+let activeEditorTab = 'coord';
+let seasonalLocalPreview = null, promoLocalPreview = null; // local-only image previews from dropzones, never saved to the database
+// Batch selection state (Employés column). bulkMode toggles the checkboxes
+// on; selectedIds is which employees are currently checked. Neither is
+// persisted — it's just this browsing session's working selection.
+let bulkMode = false;
+let selectedIds = new Set();
+let calYear = 2026, calMonth = 8; // September 2026 (0-indexed)
+
+/* ---------- icon library (Google Material Symbols, converted to white PNG — see icons-for-wix/wix_icons_banniere_batch.zip) ---------- */
+const ICON_LABELS = {
+  calendrier:"Calendrier", fete:"Fête", cadeau:"Cadeau", flocon:"Flocon", annonce:"Annonce",
+  etoile:"Étoile", horloge:"Horloge", feuille:"Feuille", "promo-chaud":"Promo chaude",
+  coeur:"Cœur", gateau:"Gâteau", bureau:"Bureau", evenement:"Événement", fidelite:"Fidélité"
+};
+
+const ICON_SVG_SHAPES = {
+  "calendrier": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z"/></svg>`,
+  "fete": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="m80-80 200-560 360 360L80-80Zm132-132 282-100-182-182-100 282Zm370-246-42-42 224-224q32-32 77-32t77 32l24 24-42 42-24-24q-14-14-35-14t-35 14L582-458ZM422-618l-42-42 24-24q14-14 14-34t-14-34l-26-26 42-42 26 26q32 32 32 76t-32 76l-24 24Zm80 80-42-42 144-144q14-14 14-35t-14-35l-64-64 42-42 64 64q32 32 32 77t-32 77L502-538Zm160 160-42-42 64-64q32-32 77-32t77 32l64 64-42 42-64-64q-14-14-35-14t-35 14l-64 64ZM212-212Z"/></svg>`,
+  "cadeau": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M160-280v80h640v-80H160Zm0-440h88q-5-9-6.5-19t-1.5-21q0-50 35-85t85-35q30 0 55.5 15.5T460-826l20 26 20-26q18-24 44-39t56-15q50 0 85 35t35 85q0 11-1.5 21t-6.5 19h88q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720Zm0 320h640v-240H596l84 114-64 46-136-184-136 184-64-46 82-114H160v240Zm200-320q17 0 28.5-11.5T400-760q0-17-11.5-28.5T360-800q-17 0-28.5 11.5T320-760q0 17 11.5 28.5T360-720Zm240 0q17 0 28.5-11.5T640-760q0-17-11.5-28.5T600-800q-17 0-28.5 11.5T560-760q0 17 11.5 28.5T600-720Z"/></svg>`,
+  "flocon": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M440-80v-166L310-118l-56-56 186-186v-80h-80L174-254l-56-56 128-130H80v-80h166L118-650l56-56 186 186h80v-80L254-786l56-56 130 128v-166h80v166l130-128 56 56-186 186v80h80l186-186 56 56-128 130h166v80H714l128 130-56 56-186-186h-80v80l186 186-56 56-130-128v166h-80Z"/></svg>`,
+  "annonce": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M720-440v-80h160v80H720Zm48 280-128-96 48-64 128 96-48 64Zm-80-480-48-64 128-96 48 64-128 96ZM200-200v-160h-40q-33 0-56.5-23.5T80-440v-80q0-33 23.5-56.5T160-600h160l200-120v480L320-360h-40v160h-80Zm240-182v-196l-98 58H160v80h182l98 58Zm120 36v-268q27 24 43.5 58.5T620-480q0 41-16.5 75.5T560-346ZM300-480Z"/></svg>`,
+  "etoile": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg>`,
+  "horloge": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z"/></svg>`,
+  "feuille": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M558-80H402v-160H120l160-240h-80l280-400 280 400h-80l160 240H558v160ZM270-320h160-76 252-76 160-420Zm0 0h420L530-560h76L480-740 354-560h76L270-320Z"/></svg>`,
+  "promo-chaud": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M240-400q0 52 21 98.5t60 81.5q-1-5-1-9v-9q0-32 12-60t35-51l113-111 113 111q23 23 35 51t12 60v9q0 4-1 9 39-35 60-81.5t21-98.5q0-50-18.5-94.5T648-574q-20 13-42 19.5t-45 6.5q-62 0-107.5-41T401-690q-39 33-69 68.5t-50.5 72Q261-513 250.5-475T240-400Zm240 52-57 56q-11 11-17 25t-6 29q0 32 23.5 55t56.5 23q33 0 56.5-23t23.5-55q0-16-6-29.5T537-292l-57-56Zm0-492v132q0 34 23.5 57t57.5 23q18 0 33.5-7.5T622-658l18-22q74 42 117 117t43 163q0 134-93 227T480-80q-134 0-227-93t-93-227q0-129 86.5-245T480-840Z"/></svg>`,
+  "coeur": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></svg>`,
+  "gateau": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M160-80q-17 0-28.5-11.5T120-120v-200q0-33 23.5-56.5T200-400v-160q0-33 23.5-56.5T280-640h160v-58q-18-12-29-29t-11-41q0-15 6-29.5t18-26.5l56-56 56 56q12 12 18 26.5t6 29.5q0 24-11 41t-29 29v58h160q33 0 56.5 23.5T760-560v160q33 0 56.5 23.5T840-320v200q0 17-11.5 28.5T800-80H160Zm120-320h400v-160H280v160Zm-80 240h560v-160H200v160Zm80-240h400-400Zm-80 240h560-560Zm560-240H200h560Z"/></svg>`,
+  "bureau": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm0-80h640v-440H160v440Zm240-520h160v-80H400v80ZM160-200v-440 440Z"/></svg>`,
+  "evenement": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z"/></svg>`,
+  "fidelite": `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path fill="#ffffff" d="m520-260 140-140q11-11 17.5-26t6.5-32q0-34-24-58t-58-24q-19 0-37.5 11T520-492q-30-28-47-38t-35-10q-34 0-58 24t-24 58q0 17 6.5 32t17.5 26l140 140Zm336-130L570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z"/></svg>`,
+};
+
+/* ---------- Quebec statutory / commonly-observed holidays, Sept 2026 – Jan 2027 (verified) ---------- */
+const QUEBEC_HOLIDAYS = [
+  { date:"2026-09-07", label:"Fête du Travail", title:"FERMÉ — FÊTE DU TRAVAIL", text:"Nos bureaux seront fermés le lundi 7 septembre 2026. Nous serons de retour le mardi 8 septembre.", icon:"bureau" },
+  { date:"2026-10-12", label:"Action de grâce", title:"FERMÉ — ACTION DE GRÂCE", text:"Nos bureaux seront fermés le lundi 12 octobre 2026. Nous serons de retour le mardi 13 octobre.", icon:"feuille" },
+  { date:"2026-10-31", label:"Halloween", title:"JOYEUSE HALLOWEEN", text:"Bonne fête de l'Halloween de la part de toute l'équipe Graphica !", icon:"fete" },
+  { date:"2026-12-24", label:"Veille de Noël", title:"HORAIRE DES FÊTES", text:"Nos bureaux ferment tôt le 24 décembre. Joyeuses Fêtes !", icon:"cadeau" },
+  { date:"2026-12-25", label:"Noël", title:"FERMÉ — NOËL", text:"Nos bureaux sont fermés pour la période des Fêtes, du 25 décembre 2026 au 1er janvier 2027 inclusivement.", icon:"cadeau" },
+  { date:"2026-12-26", label:"Lendemain de Noël", title:"FERMÉ — PÉRIODE DES FÊTES", text:"Nos bureaux sont fermés pour la période des Fêtes. Nous serons de retour le 2 janvier 2027.", icon:"flocon" },
+  { date:"2026-12-31", label:"Veille du jour de l'An", title:"BONNE ANNÉE 2027 !", text:"Toute l'équipe Graphica vous souhaite une excellente année 2027.", icon:"etoile" },
+  { date:"2027-01-01", label:"Jour de l'An", title:"FERMÉ — JOUR DE L'AN", text:"Nos bureaux sont fermés. Nous serons de retour le 4 janvier 2027.", icon:"fidelite" },
+  { date:"2027-01-02", label:"2e jour, jour de l'An", title:"FERMÉ — JOUR DE L'AN", text:"Nos bureaux sont fermés. Nous serons de retour le 4 janvier 2027.", icon:"fidelite" },
+  { date:"2027-06-24", label:"Fête nationale du Québec", title:"FERMÉ — FÊTE NATIONALE", text:"Nos bureaux seront fermés le jeudi 24 juin 2027. Nous serons de retour le vendredi 25 juin.", icon:"etoile" },
+  { date:"2027-07-01", label:"Fête du Canada", title:"FERMÉ — FÊTE DU CANADA", text:"Nos bureaux seront fermés le jeudi 1er juillet 2027. Nous serons de retour le vendredi 2 juillet.", icon:"bureau" },
+  { date:"2027-09-06", label:"Fête du Travail", title:"FERMÉ — FÊTE DU TRAVAIL", text:"Nos bureaux seront fermés le lundi 6 septembre 2027. Nous serons de retour le mardi 7 septembre.", icon:"bureau" },
+  { date:"2027-10-11", label:"Action de grâce", title:"FERMÉ — ACTION DE GRÂCE", text:"Nos bureaux seront fermés le lundi 11 octobre 2027. Nous serons de retour le mardi 12 octobre.", icon:"feuille" },
+  { date:"2027-10-31", label:"Halloween", title:"JOYEUSE HALLOWEEN", text:"Bonne fête de l'Halloween de la part de toute l'équipe Graphica !", icon:"fete" },
+  { date:"2027-12-24", label:"Veille de Noël", title:"HORAIRE DES FÊTES", text:"Nos bureaux ferment tôt le 24 décembre. Joyeuses Fêtes !", icon:"cadeau" },
+  { date:"2027-12-25", label:"Noël", title:"FERMÉ — NOËL", text:"Nos bureaux sont fermés pour la période des Fêtes, du 25 décembre 2027 au 1er janvier 2028 inclusivement.", icon:"cadeau" },
+  { date:"2027-12-26", label:"Lendemain de Noël", title:"FERMÉ — PÉRIODE DES FÊTES", text:"Nos bureaux sont fermés pour la période des Fêtes.", icon:"flocon" },
+  { date:"2027-12-31", label:"Veille du jour de l'An", title:"BONNE ANNÉE 2028 !", text:"Toute l'équipe Graphica vous souhaite une excellente année 2028.", icon:"etoile" }
+];
+function holidayFor(dateStr){ return QUEBEC_HOLIDAYS.find(h=>h.date===dateStr); }
+
+const BRAND_PALETTE = ["#1A1A24","#0768AD","#80234B","#D4AF37","#F8F9FA","#D9D9D9","#3C3C3D","#DCDCE2","#D8E8FD","#E5C5D7","#D4AF37","#ECDC96","#E6E6E7"];
+
+// Same formula and threshold as Signature Studio: picks readable title/body
+// text colors (and an outline for very pale backgrounds) for whatever
+// banner color is chosen, so no combination ends up illegible.
+function relativeLuminance(hex){
+  const h = (hex||'').replace('#','');
+  const r = parseInt(h.substring(0,2),16)/255, g = parseInt(h.substring(2,4),16)/255, b = parseInt(h.substring(4,6),16)/255;
+  return 0.299*r + 0.587*g + 0.114*b;
+}
+function readableTextColors(bgHex){
+  const light = relativeLuminance(bgHex) > 0.6;
+  return light
+    ? { title:'#1a1a1a', body:'#444444', border:'1px solid #e2e2e2' }
+    : { title:'#ffffff', body:'#cfe4f2', border:'none' };
+}
+
+function renderBrandSwatches(){
+  const host = $('#brandSwatches');
+  if(!host) return;
+  const current = ($('#cSeasColor').value||'').toUpperCase();
+  host.innerHTML = BRAND_PALETTE.map(hex=>`<div class="swatch${hex.toUpperCase()===current?' selected':''}${relativeLuminance(hex)>0.85?' light':''}" style="background:${hex};" data-hex="${hex}" title="${hex}"></div>`).join('');
+  host.querySelectorAll('.swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      const hex = sw.dataset.hex;
+      $('#cSeasColor').value = hex.toUpperCase();
+      $('#cSeasColorPicker').value = hex;
+      renderBrandSwatches();
+      updateSeasonalBannerHtml();
+    });
+  });
+}
+
+/* ---------- inline-SVG stand-ins for the preview only (deployed HTML above is untouched) ---------- */
+const AVATAR_COLORS = ['#0768ad','#a5680a','#1a7f4b','#7a4fb0','#b3311f','#0e7c86'];
+function avatarColor(str){ let h=0; for(const c of (str||'')) h=(h*31+c.charCodeAt(0))>>>0; return AVATAR_COLORS[h%AVATAR_COLORS.length]; }
+function initials(name){ const p=(name||'?').trim().split(/\s+/); return ((p[0]?.[0]||'')+(p[1]?.[0]||'')).toUpperCase() || '?'; }
+const ICON_SVG = {
+  phone: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0768ad" stroke-width="2.4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.79.65 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.22a2 2 0 0 1 2.11-.45c.86.31 1.75.53 2.65.65A2 2 0 0 1 22 16.92z"/></svg>',
+  email: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0768ad" stroke-width="2.4"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>',
+  address: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0768ad" stroke-width="2.4"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  website: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0768ad" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>'
+};
+function previewSignatureHtml(nameEff, titleEff, phoneEff, emailEff, addressEff, webUrlEff, webLabelEff, productionText, bannerBlockPreview, promoBlockPreview, disclaimerText){
+  return `<table cellpadding="0" cellspacing="0" style="width:100%;max-width:460px;font-family:'Public Sans',Arial,sans-serif;border-collapse:collapse;">
+    <tr>
+      <td style="width:110px;padding-right:12px;border-right:2px solid #0768ad;vertical-align:top;">
+        <svg viewBox="0 0 110 32" width="110" height="32"><rect width="110" height="32" rx="4" fill="#0768ad"/><text x="55" y="21" text-anchor="middle" fill="#fff" font-family="Georgia, serif" font-size="14" font-weight="600">GRAPHICA</text></svg>
+      </td>
+      <td style="padding-left:12px;vertical-align:top;">
+        <div style="font-size:15px;font-weight:700;color:#1a1a1a;">${nameEff}</div>
+        <div style="font-size:12.5px;color:#0768ad;font-weight:600;margin-bottom:6px;">${titleEff}</div>
+        <div style="font-size:12.5px;color:#444;display:flex;align-items:center;gap:7px;margin:3px 0;">${ICON_SVG.phone}${phoneEff}</div>
+        <div style="font-size:12.5px;color:#444;display:flex;align-items:center;gap:7px;margin:3px 0;">${ICON_SVG.email}${emailEff}</div>
+        <div style="font-size:12.5px;color:#444;display:flex;align-items:center;gap:7px;margin:3px 0;">${ICON_SVG.address}${addressEff}</div>
+        <div style="font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px;margin:3px 0;">${ICON_SVG.website}<span style="color:#0768ad;">${webLabelEff}</span></div>
+      </td>
+    </tr>
+    <tr><td colspan="2" style="padding-top:12px;">
+      <div style="background:#f4f2ec;border-radius:4px;padding:9px 12px;font-size:11.5px;color:#555;line-height:1.5;">${productionText}</div>
+    </td></tr>
+    ${bannerBlockPreview}${promoBlockPreview}
+    <tr><td colspan="2" style="padding-top:10px;font-size:10.5px;color:#8a8a8a;line-height:1.4;">${disclaimerText}</td></tr>
+  </table>`;
+}
+
+async function init(){
+  db = await window.claude.use('db');
+  if(!db){
+    $('#dbStatus').textContent = "Stockage indisponible dans cette vue — impossible d'enregistrer.";
+    return;
+  }
+  dbAvailable = true;
+  $('#dbDot').classList.add('ok');
+  $('#dbStatus').textContent = "Connecté";
+
+  const companyDoc = db.doc('config/company');
+  const companySnap = await companyDoc.get();
+  if(!companySnap.exists){ await companyDoc.set(DEFAULT_COMPANY); company = {...DEFAULT_COMPANY}; }
+  else { company = {...DEFAULT_COMPANY, ...companySnap.data()}; }
+  companyDoc.onSnapshot(snap=>{ if(snap.exists){ company = {...DEFAULT_COMPANY, ...snap.data()}; renderCompanyForm(); renderDeptFilterOptions(); if(activeId) renderEditor(); } });
+
+  const templateDoc = db.doc('config/template');
+  const templateSnap = await templateDoc.get();
+  if(!templateSnap.exists){ await templateDoc.set({html: DEFAULT_TEMPLATE}); template = DEFAULT_TEMPLATE; }
+  else { template = templateSnap.data().html || DEFAULT_TEMPLATE; }
+
+  renderCompanyForm();
+  renderDeptFilterOptions();
+
+  db.collection('employees').onSnapshot(snap=>{
+    employees = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    employees.sort((a,b)=> (a.displayName||a.email||'').localeCompare(b.displayName||b.email||''));
+    renderList();
+    renderReglagesDelPicker();
+    if(activeId && !employees.find(e=>e.id===activeId)) { activeId=null; renderEditorEmpty(); }
+    else if(activeId) renderEditor();
+  }, err=>{ toast('Erreur de synchronisation : '+err.message); });
+
+  $('#empSearch').addEventListener('input', renderList);
+  $('#deptFilter').addEventListener('change', renderList);
+  $('#deptManageBtn').addEventListener('click', showDeptManager);
+  $('#bulkToggleLink').addEventListener('click', ()=>{
+    bulkMode = !bulkMode;
+    if(!bulkMode) selectedIds.clear();
+    $('#bulkToggleLink').textContent = bulkMode ? '✕ Annuler la sélection' : '☑ Sélection multiple';
+    renderList();
+  });
+  // Selects/deselects everyone currently visible (i.e. matching the search
+  // box and department filter) in one click — filter to a department first,
+  // then this turns "check 12 boxes" into "click once".
+  $('#selectAllLink').addEventListener('click', ()=>{
+    const filtered = getFilteredEmployees();
+    if(!filtered.length) return;
+    const allSelected = filtered.every(e=>selectedIds.has(e.id));
+    if(allSelected){
+      filtered.forEach(e=>selectedIds.delete(e.id));
+    } else {
+      filtered.forEach(e=>selectedIds.add(e.id));
+    }
+    renderList();
+  });
+  $('#addEmpBtn').addEventListener('click', showNewEmpForm);
+  $('#newEmpCreateBtn').addEventListener('click', createEmployee);
+  $('#newEmpCancelBtn').addEventListener('click', ()=>{ $('#newEmpForm').style.display='none'; });
+  $('#saveCompanyBtn').addEventListener('click', saveCompany);
+  $('#saveCompanyBtn2').addEventListener('click', saveCompany);
+  $('#savePinBtn').addEventListener('click', savePin);
+  $('#reglagesDelEmpBtn').addEventListener('click', ()=>{
+    const id = $('#reglagesDelEmpSelect').value;
+    const emp = employees.find(x=>x.id===id);
+    if(!emp){ toast('Choisissez un employé.'); return; }
+    $('#reglagesDelEmpConfirmText').innerHTML = `Ceci supprime définitivement <b>${esc(emp.displayName||emp.email||'cette fiche')}</b> de la liste des employés.`;
+    $('#reglagesDelEmpConfirm').style.display = '';
+  });
+  $('#reglagesDelEmpCancelBtn').addEventListener('click', ()=>{ $('#reglagesDelEmpConfirm').style.display = 'none'; });
+  $('#reglagesDelEmpConfirmBtn').addEventListener('click', ()=>{
+    const id = $('#reglagesDelEmpSelect').value;
+    const emp = employees.find(x=>x.id===id);
+    if(!emp) return;
+    db.collection('employees').doc(id).delete().then(()=>{
+      if(activeId===id) activeId = null;
+      $('#reglagesDelEmpConfirm').style.display = 'none';
+      toast('Employé supprimé.');
+    });
+  });
+  $('#bSeasOff').addEventListener('click', ()=>{ company.seasonalBannerEnabled=false; renderCompanyForm(); });
+  $('#bSeasOn').addEventListener('click', ()=>{ company.seasonalBannerEnabled=true; renderCompanyForm(); });
+  $('#bPromoOff').addEventListener('click', ()=>{ company.promoBannerEnabled=false; renderCompanyForm(); });
+  $('#bPromoOn').addEventListener('click', ()=>{ company.promoBannerEnabled=true; renderCompanyForm(); });
+  $('#promoKindImage').addEventListener('click', ()=>{ company.promoBannerMode='image'; renderCompanyForm(); });
+  $('#promoKindText').addEventListener('click', ()=>{ company.promoBannerMode='text'; renderCompanyForm(); });
+  $('#cSeasColorPicker').addEventListener('input', e=>{ $('#cSeasColor').value = e.target.value.toUpperCase(); renderBrandSwatches(); updateSeasonalBannerHtml(); });
+  $('#cSeasColor').addEventListener('input', ()=>{ renderBrandSwatches(); updateSeasonalBannerHtml(); });
+  $('#cSeasTitle').addEventListener('input', updateSeasonalBannerHtml);
+  $('#cSeasText').addEventListener('input', updateSeasonalBannerHtml);
+  $('#seasKindText').addEventListener('click', ()=>{ company.seasonalBannerMode='text'; renderCompanyForm(); });
+  $('#seasKindImage').addEventListener('click', ()=>{ company.seasonalBannerMode='image'; renderCompanyForm(); });
+  $('#cSeasImageUrl').addEventListener('input', ()=>{ company.seasonalImageUrl = $('#cSeasImageUrl').value.trim(); updateSeasonalBannerHtml(); });
+  $('#cSeasLink').addEventListener('input', updateSeasonalBannerHtml);
+  // Promo fields now auto-recompute the real deployed HTML via
+  // updatePromoBannerHtml() on every edit — same treatment as the seasonal
+  // banner just above, and the fix for the bug where editing the image/link
+  // fields updated the Aperçu but not the HTML actually used at approval.
+  $('#cPromoImageUrl').addEventListener('input', updatePromoBannerHtml);
+  $('#cPromoLink').addEventListener('input', updatePromoBannerHtml);
+  $('#cPromoText').addEventListener('input', updatePromoBannerHtml);
+  $('#cProductionText').addEventListener('input', ()=>{ company.productionText = $('#cProductionText').value; refreshLivePreview(); });
+  $('#cDisclaimerText').addEventListener('input', ()=>{ company.disclaimerText = $('#cDisclaimerText').value; refreshLivePreview(); });
+  $('#calPrevBtn').addEventListener('click', ()=>{ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); });
+  $('#calNextBtn').addEventListener('click', ()=>{ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); });
+  document.querySelectorAll('.nav-tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav-tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.nav-view').forEach(v=>v.classList.remove('active'));
+      btn.classList.add('active');
+      $('#view-'+btn.dataset.nav).classList.add('active');
+    });
+  });
+
+  makeResizable('.emp-col-wrap', 'empResizeHandle', '--emp-col', 220, 460);
+  makeResizable('.apercu-col-wrap', 'apercuResizeHandle', '--apercu-col', 280, 560);
+  makeResizable('.settings-col-wrap', 'settingsResizeHandle', '--settings-col', 340, 900);
+
+  wireDropzone('seasDropzone', 'seasFileInput', (dataUrl, filename)=>{
+    seasonalLocalPreview = dataUrl;
+    renderDropzonePreview('seasDropzoneInner', dataUrl, filename);
+    updateSeasonalBannerHtml();
+    toast('Image chargée en aperçu — téléversez-la sur Wix puis collez le lien pour l’envoi réel.');
+  });
+  wireDropzone('promoDropzone', 'promoFileInput', (dataUrl, filename)=>{
+    promoLocalPreview = dataUrl;
+    renderDropzonePreview('promoDropzoneInner', dataUrl, filename);
+    updatePromoBannerHtml();
+    toast('Image chargée en aperçu — téléversez-la sur Wix puis collez le lien pour l’envoi réel.');
+  });
+}
+
+function makeResizable(wrapSelector, handleId, cssVar, min, max){
+  const wrap = document.querySelector(wrapSelector);
+  const handle = document.getElementById(handleId);
+  let startX, startWidth;
+  function setWidth(w){ w=Math.max(min,Math.min(max,w)); document.documentElement.style.setProperty(cssVar, w+'px'); }
+  handle.addEventListener('mousedown', ev=>{
+    ev.preventDefault(); startX=ev.clientX; startWidth=wrap.getBoundingClientRect().width;
+    document.body.classList.add('resizing');
+    function onMove(e){ setWidth(startWidth+(e.clientX-startX)); }
+    function onUp(){ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.body.classList.remove('resizing'); }
+    document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  });
+}
+
+// Drag-and-drop (or click-to-browse) image picker. It only ever produces a
+// local, in-memory data: URI for an instant preview here in the Console —
+// it can't host the file anywhere reachable by an outgoing email, so the
+// real deployed banner still needs a hosted URL pasted into its own field.
+function wireDropzone(zoneId, inputId, onFile){
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  if(!zone || !input) return;
+  zone.addEventListener('click', ()=>input.click());
+  input.addEventListener('change', ()=>{ if(input.files && input.files[0]) handleFile(input.files[0]); });
+  ['dragenter','dragover'].forEach(evt=>zone.addEventListener(evt, ev=>{ ev.preventDefault(); ev.stopPropagation(); zone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(evt=>zone.addEventListener(evt, ev=>{ ev.preventDefault(); ev.stopPropagation(); zone.classList.remove('dragover'); }));
+  zone.addEventListener('drop', ev=>{ const file = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]; if(file) handleFile(file); });
+  function handleFile(file){
+    if(!file.type.startsWith('image/')){ toast('Choisissez un fichier image (JPG, PNG…).'); return; }
+    const reader = new FileReader();
+    reader.onload = ()=> onFile(reader.result, file.name);
+    reader.readAsDataURL(file);
+  }
+}
+function renderDropzonePreview(innerId, dataUrl, filename){
+  const inner = document.getElementById(innerId);
+  if(!inner) return;
+  inner.innerHTML = `<img class="dz-preview" src="${dataUrl}" alt=""><div class="dz-filename">${esc(filename||'')} — cliquez ou glissez pour changer</div>`;
+}
+
+function tintedIconSvg(id, color){
+  // Same shape, glyph recolored for this one rendering — used for the
+  // library tiles and the live Aperçu, which can render inline SVG.
+  const shape = ICON_SVG_SHAPES[id] || '';
+  return shape.replace(/fill="#ffffff"/, `fill="${color}"`);
+}
+
+function buildSeasonalHtml(title, text, color, iconUrl, iconId, forPreview, link){
+  const bg = color || '#0768AD';
+  const tc = readableTextColors(bg);
+  // Text and icon both auto-switch for contrast against the banner color —
+  // same rule as Signature Studio. There is no separate manual icon color.
+  let iconCell = '';
+  if(forPreview){
+    if(iconId){
+      iconCell = `<td width="34" style="width:34px;padding:9px 9px 0 14px;vertical-align:top;"><div style="width:20px;height:20px;">${tintedIconSvg(iconId, tc.title)}</div></td>`;
+    }
+  } else if(iconUrl){
+    // Real deployed email: the icon is a hosted image file and can't be
+    // recolored on the fly — it keeps whatever color it was uploaded as.
+    iconCell = `<td width="34" style="width:34px;padding:9px 9px 0 14px;vertical-align:top;"><img src="${esc(iconUrl)}" width="20" height="20" style="width:20px;height:20px;display:block;" alt=""></td>`;
+  }
+  const hasIcon = !!iconCell;
+  const table = `<table cellpadding="0" cellspacing="0" style="width:100%;background:${esc(bg)};border-radius:4px;${tc.border!=='none'?'border:'+tc.border+';':''}"><tr>
+    ${iconCell}
+    <td style="padding:9px 14px 9px ${hasIcon?'0':'14px'};font-family:Arial,Helvetica,sans-serif;vertical-align:top;">
+      <div style="color:${tc.title};font-size:12.5px;font-weight:700;letter-spacing:.02em;line-height:1;">${esc(title)}</div>
+      <div style="color:${tc.body};font-size:11px;margin-top:3px;">${esc(text)}</div>
+    </td>
+  </tr></table>`;
+  // Optional link, same convention as buildPromoHtml below: only wrapped in
+  // the real deployed HTML (forPreview false), never in the local preview —
+  // there's nothing to navigate to inside this sandboxed Aperçu anyway.
+  const wrapped = (link && !forPreview) ? `<a href="${esc(link)}" style="display:block;text-decoration:none;color:inherit;">${table}</a>` : table;
+  return `<tr><td colspan="2" style="padding-top:8px;">${wrapped}</td></tr>`;
+}
+function buildPromoHtml(mode, imageUrl, link, text, forPreview, localPreviewDataUrl){
+  if(mode==='image'){
+    if(forPreview && localPreviewDataUrl){
+      // A freshly-dropped file — shown as-is since it's a data: URI, not a
+      // fetch to an external host, so it renders fine in this preview.
+      return `<tr><td colspan="2" style="padding-top:8px;"><img src="${localPreviewDataUrl}" alt="Promotion" style="width:100%;max-width:600px;display:block;border-radius:4px;"></td></tr>`;
+    }
+    if(!imageUrl) return '';
+    const img = forPreview
+      ? `<div style="width:100%;max-width:600px;padding:14px 10px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed var(--border);border-radius:4px;text-align:center;color:#999;font-size:11px;font-family:'Public Sans',Arial,sans-serif;">Image promo — aperçu non disponible ici (image hébergée)<br><span style="color:#777;word-break:break-all;">${esc(imageUrl)}</span></div>`
+      : `<img src="${esc(imageUrl)}" alt="Promotion" width="600" style="width:100%;max-width:600px;display:block;border:0;">`;
+    return `<tr><td colspan="2" style="padding-top:8px;">${link && !forPreview ? `<a href="${esc(link)}">${img}</a>` : img}</td></tr>`;
+  }
+  if(!text) return '';
+  return `<tr><td colspan="2" style="padding-top:8px;">
+  <table cellpadding="0" cellspacing="0" style="width:100%;background:#f4f2ec;border-radius:4px;"><tr>
+    <td style="padding:10px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#444;">${link ? `<a href="${esc(link)}" style="color:#0768ad;text-decoration:none;">${esc(text)}</a>` : esc(text)}</td>
+  </tr></table>
+</td></tr>`;
+}
+
+// Image variant of the seasonal banner — same shape as buildPromoHtml's
+// image branch above, kept separate since the seasonal banner also has a
+// text/color/icon variant (buildSeasonalHtml) that this doesn't touch.
+function buildSeasonalImageHtml(imageUrl, forPreview, localPreviewDataUrl, link){
+  if(forPreview && localPreviewDataUrl){
+    return `<tr><td colspan="2" style="padding-top:8px;"><img src="${localPreviewDataUrl}" alt="Bannière saisonnière" style="width:100%;max-width:600px;display:block;border-radius:4px;"></td></tr>`;
+  }
+  if(!imageUrl) return '';
+  if(forPreview){
+    return `<tr><td colspan="2" style="padding-top:8px;"><div style="width:100%;max-width:600px;padding:14px 10px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed var(--border);border-radius:4px;text-align:center;color:#999;font-size:11px;font-family:'Public Sans',Arial,sans-serif;">Image bannière — aperçu non disponible ici (image hébergée)<br><span style="color:#777;word-break:break-all;">${esc(imageUrl)}</span></div></td></tr>`;
+  }
+  const img = `<img src="${esc(imageUrl)}" alt="Bannière" width="600" style="width:100%;max-width:600px;display:block;border:0;">`;
+  return `<tr><td colspan="2" style="padding-top:8px;">${link ? `<a href="${esc(link)}">${img}</a>` : img}</td></tr>`;
+}
+
+// The Aperçu panel is rendered inside this same page, which — like any
+// published Claude Artifact — cannot load images from outside websites (Wix
+// included): the browser silently refuses the request, so a raw
+// <img src="https://…"> would just show a broken icon with no explanation.
+// Per-employee banner/promo overrides are stored as plain compiled HTML
+// (built once, either by the batch banner builder or by hand in the
+// "Zone dangereuse" field), so unlike the company-wide banner there's no
+// separate structured imageUrl/text to re-render safely — this instead
+// swaps any <img src="https://…"> it finds for the same style of labeled
+// placeholder used elsewhere, with the URL kept as visible text so a wrong
+// or mistyped link is still catchable. A data: URI (a locally-dropped file)
+// is left alone since it doesn't need a network request.
+function previewSafeHtml(html){
+  if(!html) return html;
+  return html.replace(/<img\b[^>]*\bsrc="([^"]*)"[^>]*>/gi, (m, url)=>{
+    if(url.startsWith('data:')) return m;
+    return `<div style="width:100%;max-width:600px;padding:14px 10px;background:repeating-linear-gradient(45deg,#eee,#eee 10px,#f7f7f7 10px,#f7f7f7 20px);border:1px dashed #ccc;border-radius:4px;text-align:center;color:#999;font-size:11px;font-family:'Public Sans',Arial,sans-serif;">Image — aperçu non disponible ici (image hébergée)<br><span style="color:#777;word-break:break-all;">${esc(url)}</span></div>`;
+  });
+}
+
+// Dispatches between the seasonal banner's text/color/icon variant and its
+// image variant, for the live Aperçu only — the deployed HTML is compiled by
+// updateSeasonalBannerHtml() below, which follows the same branching.
+function seasonalBannerPreviewHtml(){
+  if((company.seasonalBannerMode||'text')==='image'){
+    return buildSeasonalImageHtml(company.seasonalImageUrl, true, seasonalLocalPreview, company.seasonalLink);
+  }
+  const iconUrl = company.seasonalIconId ? ((company.iconLibrary||{})[company.seasonalIconId]||'') : '';
+  return buildSeasonalHtml(company.seasonalTitle, company.seasonalText, company.seasonalColor, iconUrl, company.seasonalIconId, true, company.seasonalLink);
+}
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function renderCalendar(){
+  const MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  $('#calMonthLabel').textContent = `${MONTHS[calMonth]} ${calYear}`;
+  const first = new Date(calYear, calMonth, 1);
+  const startDow = (first.getDay()+6)%7; // Monday=0
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  const grid = $('#calGrid');
+  let html = ['L','M','M','J','V','S','D'].map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<startDow;i++){ html += `<div class="day muted">${daysInPrevMonth-startDow+i+1}</div>`; }
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${calYear}-${pad2(calMonth+1)}-${pad2(d)}`;
+    const h = holidayFor(dateStr);
+    const cls = ['day']; if(h) cls.push('holiday'); if(dateStr===todayStr) cls.push('today');
+    html += `<div class="${cls.join(' ')}" ${h?`data-date="${dateStr}" title="${esc(h.label)}"`:''}>${d}</div>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('.day.holiday').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const h = holidayFor(el.dataset.date);
+      if(!h) return;
+      $('#cSeasDate').value = h.label;
+      $('#cSeasTitle').value = h.title;
+      $('#cSeasText').value = h.text;
+      company.seasonalIconId = h.icon || null;
+      renderIconGrid();
+      updateSeasonalBannerHtml();
+      autosaveIconSelection();
+      toast('Champs remplis à partir du calendrier — ajustez au besoin, le bandeau se met à jour tout seul.');
+    });
+  });
+}
+function renderIconGrid(){
+  const grid = $('#iconGrid');
+  // The tile swatch itself is always a white card, so the glyph preview here
+  // just uses a fixed neutral dark color — it's only a library preview. In
+  // the actual banner, the icon auto-switches to a readable color against
+  // the chosen banner background (see buildSeasonalHtml); there is no
+  // separate manual icon color to set.
+  const glyphColor = '#1a1a24';
+  grid.innerHTML = Object.keys(ICON_LABELS).map(id=>{
+    const selected = company.seasonalIconId===id;
+    return `<div class="icon-tile${selected?' selected':''}" data-icon="${id}" title="${esc(ICON_LABELS[id])}">
+      <div class="swatch">
+        ${tintedIconSvg(id, glyphColor)}
+      </div>
+      <div class="name">${esc(ICON_LABELS[id])}</div>
+    </div>`;
+  }).join('') + `<div class="icon-tile none${!company.seasonalIconId?' selected':''}" data-icon="" title="Aucune icône">
+    <div class="swatch"><span>∅</span></div>
+    <div class="name">Aucune</div>
+  </div>`;
+  grid.querySelectorAll('.icon-tile').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      company.seasonalIconId = el.dataset.icon || null;
+      renderIconGrid();
+      updateSeasonalBannerHtml();
+      autosaveIconSelection();
+    });
+  });
+}
+
+// Icon selection lives directly on the in-memory `company` object rather
+// than in a form field, so unlike the other Réglages fields (which are only
+// read from the DOM at Save time) it is vulnerable to being silently
+// discarded by the next onSnapshot refresh — the live sync listener can
+// fire at any time (on connect, or after any other save) and overwrites
+// `company` wholesale from what's currently persisted. To close that
+// window, every icon pick is saved to the database immediately,
+// autosave-style, instead of waiting for the Réglages "Enregistrer" button.
+async function autosaveIconSelection(){
+  if(!dbAvailable || !db) return;
+  try{
+    // Full sync, not a partial {seasonalIconId} update — see
+    // syncCompanyFromForm()'s comment for why a narrower write here caused
+    // an unsaved banner color to get silently reverted.
+    syncCompanyFromForm();
+    company.updatedAt = new Date().toISOString();
+    await db.doc('config/company').update(company);
+  }catch(err){
+    toast('Erreur en enregistrant le choix d’icône : '+err.message);
+  }
+}
+
+// Recomputes the seasonal banner's HTML from the live fields — this is what
+// used to require clicking "Générer" by hand, which was easy to forget and
+// left the deployed banner out of sync with the fields above it.
+function updateSeasonalBannerHtml(){
+  const el = $('#cBannerHtml');
+  if(!el) return;
+  if($('#cSeasLink')) company.seasonalLink = $('#cSeasLink').value.trim();
+  if((company.seasonalBannerMode||'text')==='image'){
+    if($('#cSeasImageUrl')) company.seasonalImageUrl = $('#cSeasImageUrl').value.trim();
+    el.value = buildSeasonalImageHtml(company.seasonalImageUrl, false, null, company.seasonalLink);
+  } else {
+    const title = $('#cSeasTitle') ? $('#cSeasTitle').value : (company.seasonalTitle||'');
+    const text = $('#cSeasText') ? $('#cSeasText').value : (company.seasonalText||'');
+    const color = ($('#cSeasColor') ? $('#cSeasColor').value.trim() : company.seasonalColor) || '#0768AD';
+    const iconId = company.seasonalIconId || null;
+    const iconUrl = iconId ? ((company.iconLibrary||{})[iconId]||'') : '';
+    el.value = buildSeasonalHtml(title, text, color, iconUrl, iconId, false, company.seasonalLink);
+    // Keep the in-memory company object in step with the fields so the live
+    // Aperçu (which reads company.seasonal*) reflects them immediately too —
+    // this is what makes the Aperçu update as you type, not just on Save.
+    company.seasonalTitle = title;
+    company.seasonalText = text;
+    company.seasonalColor = color;
+  }
+  refreshLivePreview();
+}
+
+// Same idea as updateSeasonalBannerHtml() above, for the promo banner — this
+// was the missing half of that earlier fix: the promo fields (image URL,
+// link, text, mode) updated `company.*` and the live Aperçu, but never
+// recomputed the actual deployed HTML stored in company.promoBannerHtml,
+// which only a manual "Générer" click used to refresh. Skipping that click
+// (easy to do — nothing in the UI signals it's needed) left the real,
+// deployed signature showing old/placeholder promo content while the Aperçu
+// looked correct. Now this fires on every relevant edit, same as seasonal.
+function updatePromoBannerHtml(){
+  const el = $('#cPromoHtml');
+  if(!el) return;
+  if($('#cPromoLink')) company.promoLink = $('#cPromoLink').value.trim();
+  if((company.promoBannerMode||'image')==='image'){
+    if($('#cPromoImageUrl')) company.promoImageUrl = $('#cPromoImageUrl').value.trim();
+    el.value = buildPromoHtml('image', company.promoImageUrl, company.promoLink, '');
+  } else {
+    const text = $('#cPromoText') ? $('#cPromoText').value : (company.promoText||'');
+    el.value = buildPromoHtml('text', '', company.promoLink, text);
+    company.promoText = text;
+  }
+  company.promoBannerHtml = el.value;
+  refreshLivePreview();
+}
+
+// Whichever employee is currently selected, redraw their Aperçu from the
+// live in-memory `company` object — called after any company-wide field
+// (banner, promo, production, confidentiality) changes, so the preview
+// panel in the Employés tab updates as you type instead of only on Save.
+function refreshLivePreview(){
+  const e = employees.find(x=>x.id===activeId);
+  if(e) showPreview(e);
+}
+
+function renderCompanyForm(){
+  $('#cPhone').value = company.companyPhone||'';
+  $('#cAddress').value = company.companyAddress||'';
+  $('#cWebUrl').value = company.companyWebsiteUrl||'';
+  $('#cWebLabel').value = company.companyWebsiteLabel||'';
+  $('#cLogo').value = company.companyLogoUrl||'';
+  if($('#cLocalPath')) $('#cLocalPath').value = company.localStudioPath||'';
+  $('#cSeasTitle').value = company.seasonalTitle||'';
+  $('#cSeasText').value = company.seasonalText||'';
+  $('#cSeasColor').value = company.seasonalColor||'#0768AD';
+  $('#cSeasColorPicker').value = company.seasonalColor||'#0768AD';
+  $('#cPromoHtml').value = company.promoBannerHtml||'';
+  $('#cPromoImageUrl').value = company.promoImageUrl||'';
+  $('#cPromoLink').value = company.promoLink||'';
+  $('#cPromoText').value = company.promoText||'';
+  $('#cProductionText').value = company.productionText||'';
+  $('#cDisclaimerText').value = company.disclaimerText||'';
+  $('#cSeasImageUrl').value = company.seasonalImageUrl||'';
+  $('#cSeasLink').value = company.seasonalLink||'';
+  $('#bSeasOff').classList.toggle('on', !company.seasonalBannerEnabled);
+  $('#bSeasOn').classList.toggle('on', !!company.seasonalBannerEnabled);
+  const seasImgMode = (company.seasonalBannerMode||'text')==='image';
+  $('#seasKindText').classList.toggle('on', !seasImgMode);
+  $('#seasKindImage').classList.toggle('on', seasImgMode);
+  $('#seasTextFields').style.display = seasImgMode ? 'none' : '';
+  $('#seasImageFields').style.display = seasImgMode ? '' : 'none';
+  $('#bPromoOff').classList.toggle('on', !company.promoBannerEnabled);
+  $('#bPromoOn').classList.toggle('on', !!company.promoBannerEnabled);
+  const imgMode = (company.promoBannerMode||'image')==='image';
+  $('#promoKindImage').classList.toggle('on', imgMode);
+  $('#promoKindText').classList.toggle('on', !imgMode);
+  $('#promoImageFields').style.display = imgMode ? '' : 'none';
+  $('#promoTextField').style.display = imgMode ? 'none' : '';
+  renderCalendar();
+  renderIconGrid();
+  renderBrandSwatches();
+  updateSeasonalBannerHtml();
+  updatePromoBannerHtml();
+  renderPerEmployeeBanner(employees.find(x=>x.id===activeId) || null);
+}
+
+// Pulls every company-wide field's current form value into the in-memory
+// `company` object. Used before ANY write to config/company — including the
+// icon/color autosave — so a partial save never persists (and echoes back
+// via onSnapshot) a stale value for a field the user has changed but not
+// yet explicitly saved. That mismatch was the cause of a real bug: picking
+// a new banner color, then clicking an icon, silently reverted the color —
+// the icon's own autosave wrote only the icon fields, so the sync echo
+// carried the old, still-persisted color and overwrote the unsaved pick.
+function syncCompanyFromForm(){
+  company.companyPhone = formatPhoneOQLF($('#cPhone').value.trim());
+  company.companyAddress = $('#cAddress').value.trim();
+  company.companyWebsiteUrl = $('#cWebUrl').value.trim();
+  company.companyWebsiteLabel = $('#cWebLabel').value.trim();
+  company.companyLogoUrl = $('#cLogo').value.trim();
+  if($('#cLocalPath')) company.localStudioPath = $('#cLocalPath').value.trim();
+  company.seasonalTitle = $('#cSeasTitle').value.trim();
+  company.seasonalText = $('#cSeasText').value.trim();
+  company.seasonalColor = $('#cSeasColor').value.trim();
+  updateSeasonalBannerHtml();
+  company.seasonalBannerHtml = $('#cBannerHtml').value;
+  company.promoBannerHtml = $('#cPromoHtml').value;
+  company.promoImageUrl = $('#cPromoImageUrl').value.trim();
+  company.promoLink = $('#cPromoLink').value.trim();
+  company.promoText = $('#cPromoText').value;
+  company.productionText = $('#cProductionText').value;
+  company.disclaimerText = $('#cDisclaimerText').value;
+  company.seasonalIconId = company.seasonalIconId || null;
+  company.iconLibrary = company.iconLibrary || {};
+}
+
+async function saveCompany(){
+  syncCompanyFromForm();
+  company.updatedAt = new Date().toISOString();
+  await db.doc('config/company').update(company);
+  toast('Réglages de l’entreprise enregistrés.');
+}
+
+async function savePin(){
+  const v = $('#cPin').value.trim();
+  if(!v){ toast('Entrez un code PIN.'); return; }
+  await db.doc('config/company').update({pin:v});
+  $('#cPin').value='';
+  toast('Code PIN mis à jour.');
+}
+
+function renderReglagesDelPicker(){
+  const sel = $('#reglagesDelEmpSelect');
+  if(!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = employees.map(e=>`<option value="${esc(e.id)}">${esc(e.displayName||e.email||e.id)}</option>`).join('');
+  if(prev && employees.find(e=>e.id===prev)) sel.value = prev;
+  $('#reglagesDelEmpConfirm').style.display = 'none';
+}
+
+// Shared by renderList() and the "Tout sélectionner" link, so both always
+// agree on exactly which employees are "currently visible" — selecting or
+// counting from two slightly different filters would be a quiet bug.
+function getFilteredEmployees(){
+  const q = ($('#empSearch').value||'').toLowerCase();
+  const deptSel = $('#deptFilter') ? $('#deptFilter').value : '';
+  return employees.filter(e =>
+    (!q || (e.displayName||'').toLowerCase().includes(q) || (e.email||'').toLowerCase().includes(q)) &&
+    (!deptSel || (e.department||'')===deptSel)
+  );
+}
+
+function renderList(){
+  const host = $('#empList'); host.innerHTML='';
+  $('#empCount').textContent = employees.length;
+  const filtered = getFilteredEmployees();
+  if($('#empVisibleCount')) $('#empVisibleCount').textContent = `${filtered.length} employé${filtered.length>1?'s':''}`;
+  // The select-all link only makes sense in bulk mode, and its label flips
+  // to "Tout désélectionner" once everyone currently visible is checked —
+  // same select/clear-all pattern as a spreadsheet's header checkbox.
+  const selectAllLink = $('#selectAllLink');
+  if(selectAllLink){
+    if(bulkMode && filtered.length){
+      selectAllLink.style.display = '';
+      const allSelected = filtered.every(e=>selectedIds.has(e.id));
+      selectAllLink.textContent = allSelected ? '☐ Tout désélectionner' : '☑ Tout sélectionner';
+    } else {
+      selectAllLink.style.display = 'none';
+    }
+  }
+  if(!filtered.length){
+    host.innerHTML = '<p class="note" style="padding:8px;">Aucun employé pour l&#39;instant.</p>';
+    renderBulkBar(); renderExceptionsPanel();
+    return;
+  }
+  filtered.forEach(e=>{
+    const row = document.createElement('div');
+    row.className = 'emp-row' + (e.id===activeId ? ' active':'');
+    const ov = isOverride(e);
+    const checkboxHtml = bulkMode ? `<input type="checkbox" class="empCheckbox" data-id="${esc(e.id)}" ${selectedIds.has(e.id)?'checked':''}>` : '';
+    row.innerHTML = `${checkboxHtml}<div class="avatar" style="background:${avatarColor(e.displayName||e.email)};">${esc(initials(e.displayName))}</div>
+      <div class="emp-row-body">
+        <div class="emp-row-top"><span class="name">${esc(e.displayName||'(sans nom)')}</span></div>
+        <span class="em">${esc(e.email||'')}</span>
+        <div class="pills">${e.department?`<span class="pill dept">${esc(e.department)}</span>`:''}${ov?'<span class="pill override">exception</span>':''}<span class="pill ${e.status==='approuvé'?'approved':'draft'}">${e.status==='approuvé'?'approuvé':'brouillon'}</span></div>
+      </div>`;
+    row.addEventListener('click', (ev)=>{
+      if(ev.target.classList.contains('empCheckbox')) return;
+      if(activeId !== e.id) activeEditorTab = 'coord'; // fresh employee starts on Coordonnées
+      activeId = e.id;
+      renderEditor();
+    });
+    const cb = row.querySelector('.empCheckbox');
+    if(cb){
+      cb.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        if(cb.checked) selectedIds.add(e.id); else selectedIds.delete(e.id);
+        renderBulkBar();
+      });
+    }
+    host.appendChild(row);
+  });
+  renderBulkBar();
+  renderExceptionsPanel();
+}
+
+function employeeName(id){ const e = employees.find(x=>x.id===id); return e ? (e.displayName||e.email||id) : id; }
+
+function deptOptionsHtml(selected){
+  const depts = company.departments || [];
+  return `<option value="">— Aucun —</option>` + depts.map(d=>`<option value="${esc(d)}" ${d===selected?'selected':''}>${esc(d)}</option>`).join('');
+}
+
+function renderDeptFilterOptions(){
+  const sel = $('#deptFilter');
+  if(!sel) return;
+  const prev = sel.value;
+  const depts = company.departments || [];
+  sel.innerHTML = `<option value="">Tous les départements</option>` + depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+  if(depts.includes(prev)) sel.value = prev;
+}
+
+// Département management — add/remove the shared list of department names,
+// AND assign/remove members directly from here via a type-to-search box
+// (no need to go into bulk-select mode just to put a few people in a
+// department). Departments are only ever used to filter/select employees;
+// they never touch signature content directly.
+function showDeptManager(){
+  const old = document.querySelector('.modal-backdrop'); if(old) old.remove();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal-box" style="text-align:left;max-width:420px;">
+    <h3 style="text-align:center;">Départements</h3>
+    <div id="deptListHost" style="margin:10px 0;max-height:320px;overflow-y:auto;"></div>
+    <div style="display:flex;gap:6px;">
+      <input type="text" id="newDeptInput" placeholder="Nouveau département…" style="flex:1;">
+      <button type="button" class="sm" id="addDeptBtn">Ajouter</button>
+    </div>
+    <p class="note" id="deptStatusMsg" style="margin-top:6px;min-height:15px;"></p>
+    <button id="deptCloseBtn" style="width:100%;margin-top:8px;">Fermer</button>
+  </div>`;
+  document.body.appendChild(backdrop);
+  // Status line INSIDE the popup, in addition to the toast — a toast fired
+  // while a modal is open is easy to miss even after the z-index fix, so
+  // anything worth telling the user about here (success or a save error)
+  // also gets written where their eyes already are.
+  function setDeptStatus(msg, isError){
+    const el = backdrop.querySelector('#deptStatusMsg');
+    if(!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? 'var(--danger)' : 'var(--ok)';
+  }
+  // Which departments' "add members" panel is currently expanded — scoped to
+  // this one open instance of the popup, so it resets next time it's opened.
+  const openMemberPanels = new Set();
+  function renderDeptList(){
+    const depts = company.departments || [];
+    const listHost = backdrop.querySelector('#deptListHost');
+    listHost.innerHTML = depts.length ? depts.map(d=>{
+      const count = employees.filter(e=>e.department===d).length;
+      const isOpen = openMemberPanels.has(d);
+      return `<div style="padding:6px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="flex:1;font-size:13px;">${esc(d)}</span>
+          <span class="note">${count} employé${count>1?'s':''}</span>
+          <button type="button" class="sm" data-toggle-dept="${esc(d)}">${isOpen?'− Fermer':'+ Ajouter'}</button>
+          <button type="button" class="sm danger" data-del-dept="${esc(d)}">Supprimer</button>
+        </div>
+        <div class="dept-members-panel" data-panel-for="${esc(d)}" style="display:${isOpen?'block':'none'};margin:8px 0 2px;padding:8px;background:var(--surface-2);border-radius:6px;">
+          <div class="pills dept-member-pills"></div>
+          <input type="text" class="dept-emp-search" placeholder="Tapez un nom ou un courriel…" style="margin-top:4px;">
+          <div class="dept-emp-suggestions" style="display:none;"></div>
+        </div>
+      </div>`;
+    }).join('') : '<p class="note">Aucun département pour l’instant.</p>';
+    listHost.querySelectorAll('[data-del-dept]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const prev = company.departments || [];
+        company.departments = prev.filter(x=>x!==btn.dataset.delDept);
+        try{
+          await db.doc('config/company').update({departments: company.departments});
+          renderDeptFilterOptions();
+          renderDeptList();
+          setDeptStatus('Département supprimé.', false);
+          toast('Département supprimé.');
+        }catch(err){
+          company.departments = prev; // roll back the in-memory change so the UI doesn't lie about what's saved
+          renderDeptList();
+          setDeptStatus('Erreur en supprimant : '+err.message, true);
+          toast('Erreur en supprimant le département : '+err.message);
+        }
+      });
+    });
+    listHost.querySelectorAll('[data-toggle-dept]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const d = btn.dataset.toggleDept;
+        if(openMemberPanels.has(d)) openMemberPanels.delete(d); else openMemberPanels.add(d);
+        renderDeptList();
+      });
+    });
+    listHost.querySelectorAll('.dept-members-panel').forEach(panel=>{
+      const d = panel.dataset.panelFor;
+      if(!openMemberPanels.has(d)) return;
+      renderDeptMembers(d, panel);
+      const searchInput = panel.querySelector('.dept-emp-search');
+      searchInput.addEventListener('input', ()=>renderDeptSuggestions(d, panel, searchInput.value));
+      searchInput.focus();
+    });
+  }
+  // The chip list of people already in this department, each removable —
+  // "remove" just clears their department back to none, same as unassigning.
+  function renderDeptMembers(d, panel){
+    const members = employees.filter(e=>e.department===d)
+      .sort((a,b)=>(a.displayName||a.email||'').localeCompare(b.displayName||b.email||''));
+    const host = panel.querySelector('.dept-member-pills');
+    host.innerHTML = members.length ? members.map(e=>
+      `<span class="dept-member-chip">${esc(e.displayName||e.email||'(sans nom)')}<button type="button" data-remove-member="${esc(e.id)}" title="Retirer du département">✕</button></span>`
+    ).join('') : '<p class="note" style="margin:0;">Personne dans ce département pour l’instant.</p>';
+    host.querySelectorAll('[data-remove-member]').forEach(btn=>{
+      btn.addEventListener('click', ()=>removeFromDept(btn.dataset.removeMember, d));
+    });
+  }
+  // Type-ahead: matches on name or email, excludes people already in this
+  // department, capped so the list stays short — click a suggestion to add
+  // that person immediately, no separate confirm step (it's one person at a
+  // time, and it's trivially reversible with the ✕ above).
+  function renderDeptSuggestions(d, panel, query){
+    const host = panel.querySelector('.dept-emp-suggestions');
+    const q = (query||'').trim().toLowerCase();
+    if(!q){ host.style.display='none'; host.innerHTML=''; return; }
+    const matches = employees.filter(e=>
+      e.department!==d &&
+      ((e.displayName||'').toLowerCase().includes(q) || (e.email||'').toLowerCase().includes(q))
+    ).slice(0,8);
+    host.style.display='block';
+    host.innerHTML = matches.length ? matches.map(e=>
+      `<div class="dept-emp-suggestion" data-add-emp="${esc(e.id)}">
+        <span>${esc(e.displayName||'(sans nom)')}</span><span class="em">${esc(e.email||'')}</span>
+      </div>`
+    ).join('') : '<div class="note" style="padding:6px 9px;">Aucun résultat.</div>';
+    host.querySelectorAll('[data-add-emp]').forEach(row=>{
+      row.addEventListener('click', ()=>{
+        panel.querySelector('.dept-emp-search').value = '';
+        host.style.display='none'; host.innerHTML='';
+        assignToDept(row.dataset.addEmp, d);
+      });
+    });
+  }
+  async function assignToDept(id, d){
+    const emp = employees.find(e=>e.id===id);
+    if(!emp) return;
+    const prevDept = emp.department;
+    emp.department = d; // optimistic, so the chip list updates instantly
+    renderDeptList();
+    try{
+      await db.collection('employees').doc(id).update({department:d, updatedAt:new Date().toISOString()});
+      renderDeptFilterOptions();
+      toast(`« ${emp.displayName||emp.email} » ajouté à ${d}.`);
+    }catch(err){
+      emp.department = prevDept;
+      renderDeptList();
+      toast('Erreur en ajoutant l’employé : '+err.message);
+    }
+  }
+  async function removeFromDept(id, d){
+    const emp = employees.find(e=>e.id===id);
+    if(!emp) return;
+    const prevDept = emp.department;
+    emp.department = '';
+    renderDeptList();
+    try{
+      await db.collection('employees').doc(id).update({department:'', updatedAt:new Date().toISOString()});
+      renderDeptFilterOptions();
+      toast(`« ${emp.displayName||emp.email} » retiré de ${d}.`);
+    }catch(err){
+      emp.department = prevDept;
+      renderDeptList();
+      toast('Erreur en retirant l’employé : '+err.message);
+    }
+  }
+  renderDeptList();
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) backdrop.remove(); });
+  backdrop.querySelector('#deptCloseBtn').addEventListener('click', ()=>backdrop.remove());
+  async function addDeptFromInput(){
+    const input = backdrop.querySelector('#newDeptInput');
+    const name = input.value.trim();
+    if(!name){ setDeptStatus('Entrez un nom avant de cliquer Ajouter.', true); return; }
+    if((company.departments||[]).includes(name)){ setDeptStatus('Ce département existe déjà.', true); toast('Ce département existe déjà.'); return; }
+    if(!dbAvailable || !db){ setDeptStatus('Stockage indisponible — impossible d’enregistrer.', true); return; }
+    const prev = company.departments || [];
+    company.departments = [...prev, name];
+    setDeptStatus('Enregistrement…', false);
+    try{
+      await db.doc('config/company').update({departments: company.departments});
+      input.value='';
+      renderDeptFilterOptions();
+      renderDeptList();
+      setDeptStatus('Département ajouté.', false);
+      toast('Département ajouté.');
+    }catch(err){
+      company.departments = prev;
+      setDeptStatus('Erreur en ajoutant : '+(err && err.message ? err.message : err), true);
+      toast('Erreur en ajoutant le département : '+err.message);
+    }
+  }
+  backdrop.querySelector('#addDeptBtn').addEventListener('click', addDeptFromInput);
+  // Enter key submits too, not just the button — easy to expect otherwise.
+  backdrop.querySelector('#newDeptInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addDeptFromInput(); } });
+}
+
+// The bulk action bar: appears only once at least one employee is checked.
+// Every action here shows the affected-employees confirmation popup before
+// writing anything — see showBatchConfirmModal().
+function renderBulkBar(){
+  const host = $('#bulkBar');
+  if(!host) return;
+  if(!bulkMode || selectedIds.size===0){ host.innerHTML=''; return; }
+  // Selected employees that scrolled out of the current filter are still
+  // counted — the selection persists across a filter change.
+  const n = selectedIds.size;
+  host.innerHTML = `
+    <div class="bulk-bar">
+      <b>${n} employé${n>1?'s':''} sélectionné${n>1?'s':''}</b>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <select id="bulkDeptSelect" style="flex:1;"></select>
+        <button type="button" class="sm" id="bulkDeptApplyBtn">Assigner</button>
+      </div>
+      <div id="bulkDeptNewWrap" style="display:none;gap:6px;margin-top:6px;">
+        <input type="text" id="bulkDeptNewInput" placeholder="Nom du nouveau département" style="flex:1;">
+      </div>
+      <div class="bulk-actions">
+        <button type="button" class="sm" id="bulkSeasBtn">🎉 Saisonnière…</button>
+        <button type="button" class="sm" id="bulkPromoBtn">📣 Promo…</button>
+        <button type="button" class="sm" id="bulkRevertBtn">↺ Défaut entreprise</button>
+      </div>
+    </div>`;
+  const dsel = $('#bulkDeptSelect');
+  dsel.innerHTML = `<option value="">— Choisir un département —</option>` +
+    (company.departments||[]).map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('') +
+    `<option value="__new">+ Nouveau département…</option>`;
+  dsel.addEventListener('change', ()=>{
+    $('#bulkDeptNewWrap').style.display = dsel.value==='__new' ? 'flex' : 'none';
+  });
+  $('#bulkDeptApplyBtn').addEventListener('click', bulkAssignDepartment);
+  $('#bulkSeasBtn').addEventListener('click', ()=>showBannerBuilder('banner'));
+  $('#bulkPromoBtn').addEventListener('click', ()=>showBannerBuilder('promo'));
+  $('#bulkRevertBtn').addEventListener('click', bulkRevertToDefault);
+}
+
+async function bulkAssignDepartment(){
+  const dsel = $('#bulkDeptSelect');
+  let dept = dsel.value;
+  if(dept==='__new'){
+    dept = ($('#bulkDeptNewInput').value||'').trim();
+    if(!dept){ toast('Entrez un nom de département.'); return; }
+    if(!(company.departments||[]).includes(dept)){
+      const prev = company.departments || [];
+      company.departments = [...prev, dept];
+      try{
+        await db.doc('config/company').update({departments: company.departments});
+        renderDeptFilterOptions();
+      }catch(err){
+        company.departments = prev;
+        toast('Erreur en créant le département : '+err.message);
+        return;
+      }
+    }
+  }
+  if(!dept){ toast('Choisissez un département.'); return; }
+  const ids = [...selectedIds];
+  const names = ids.map(employeeName);
+  showBatchConfirmModal(
+    `Assigner « ${dept} » ?`,
+    `Le département de ${ids.length} employé${ids.length>1?'s':''} sera mis à jour :`,
+    names,
+    async ()=>{
+      try{
+        await Promise.all(ids.map(id=>db.collection('employees').doc(id).update({department:dept, updatedAt:new Date().toISOString()})));
+        toast('Département assigné.');
+        selectedIds.clear(); renderList();
+      }catch(err){
+        toast('Erreur en assignant le département : '+err.message);
+      }
+    }
+  );
+}
+
+// Builds a custom banner/promo override and applies it to every selected
+// employee — this is how "these 3 people need a different promo banner,
+// everyone else keeps the company one" gets done without opening each
+// person's card individually. Reuses buildPromoHtml()'s image/text shape
+// for both banner types, since the override is just a supplementary block.
+function showBannerBuilder(type){
+  const old = document.querySelector('.modal-backdrop'); if(old) old.remove();
+  const label = type==='banner' ? 'la bannière saisonnière' : 'la bannière promotionnelle';
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal-box" style="text-align:left;max-width:440px;">
+    <h3 style="text-align:center;">Personnaliser ${label}</h3>
+    <p class="note" style="text-align:center;">Remplace ${label} de l'entreprise, seulement pour les employés sélectionnés.</p>
+    <div class="togglebar">
+      <button type="button" class="on" data-val="image" id="bbKindImage">🖼️ Image</button>
+      <button type="button" data-val="text" id="bbKindText">📝 Texte</button>
+    </div>
+    <div id="bbImageFields">
+      <div class="field"><label>Image — URL hébergée</label><input type="url" id="bbImageUrl" placeholder="https://…/image.png"></div>
+      <div class="field"><label>Lien (optionnel)</label><input type="url" id="bbLink"></div>
+    </div>
+    <div class="field" id="bbTextField" style="display:none;"><label>Texte</label><textarea id="bbText" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button type="button" id="bbCancelBtn" style="flex:1;">Annuler</button>
+      <button type="button" class="primary" id="bbApplyBtn" style="flex:1;">Continuer</button>
+    </div>
+  </div>`;
+  document.body.appendChild(backdrop);
+  const close = ()=>backdrop.remove();
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) close(); });
+  backdrop.querySelector('#bbCancelBtn').addEventListener('click', close);
+  const kindImg = backdrop.querySelector('#bbKindImage'), kindTxt = backdrop.querySelector('#bbKindText');
+  const imgFields = backdrop.querySelector('#bbImageFields'), txtField = backdrop.querySelector('#bbTextField');
+  let mode = 'image';
+  kindImg.addEventListener('click', ()=>{ mode='image'; kindImg.classList.add('on'); kindTxt.classList.remove('on'); imgFields.style.display=''; txtField.style.display='none'; });
+  kindTxt.addEventListener('click', ()=>{ mode='text'; kindTxt.classList.add('on'); kindImg.classList.remove('on'); imgFields.style.display='none'; txtField.style.display=''; });
+  backdrop.querySelector('#bbApplyBtn').addEventListener('click', ()=>{
+    const imageUrl = backdrop.querySelector('#bbImageUrl').value.trim();
+    const link = backdrop.querySelector('#bbLink').value.trim();
+    const text = backdrop.querySelector('#bbText').value.trim();
+    if(mode==='image' && !imageUrl){ toast('Entrez une URL d’image.'); return; }
+    if(mode==='text' && !text){ toast('Entrez un texte.'); return; }
+    const html = buildPromoHtml(mode, imageUrl, link, text, false);
+    close();
+    const ids = [...selectedIds];
+    const names = ids.map(employeeName);
+    const fieldKey = type==='banner' ? 'bannerOverrideHtml' : 'promoOverrideHtml';
+    const modeKey = type==='banner' ? 'bannerMode' : 'promoMode';
+    const msg = type==='banner' ? 'La bannière saisonnière personnalisée sera appliquée à :' : 'La bannière promotionnelle personnalisée sera appliquée à :';
+    showBatchConfirmModal(
+      `Appliquer à ${ids.length} employé${ids.length>1?'s':''} ?`,
+      msg,
+      names,
+      async ()=>{
+        try{
+          await Promise.all(ids.map(id=>db.collection('employees').doc(id).update({[fieldKey]: html, [modeKey]:'on', updatedAt:new Date().toISOString()})));
+          toast('Bannière personnalisée appliquée.');
+          selectedIds.clear(); renderList();
+        }catch(err){
+          toast('Erreur en appliquant la bannière : '+err.message);
+        }
+      }
+    );
+  });
+}
+
+function bulkRevertToDefault(){
+  const ids = [...selectedIds];
+  if(!ids.length) return;
+  const names = ids.map(employeeName);
+  showBatchConfirmModal(
+    `Revenir aux réglages de l'entreprise ?`,
+    `Les bannières personnalisées seront retirées pour :`,
+    names,
+    async ()=>{
+      try{
+        await Promise.all(ids.map(id=>db.collection('employees').doc(id).update({
+          bannerOverrideHtml:null, promoOverrideHtml:null, bannerMode:'auto', promoMode:'auto', updatedAt:new Date().toISOString()
+        })));
+        toast('Réglages de l’entreprise rétablis.');
+        selectedIds.clear(); renderList();
+      }catch(err){
+        toast('Erreur en rétablissant les réglages : '+err.message);
+      }
+    }
+  );
+}
+
+// A confirmation popup that lists exactly who's affected, by name, before
+// any batch write happens — nothing here applies until "Confirmer" is
+// clicked, matching the single-employee confirmations (approve()'s PIN
+// step, the delete-employee confirm) already used elsewhere in the Console.
+function showBatchConfirmModal(title, message, names, onConfirm){
+  const old = document.querySelector('.modal-backdrop'); if(old) old.remove();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  const list = names.map(n=>`<div style="padding:5px 0;font-size:13px;border-bottom:1px solid var(--border);">${esc(n)}</div>`).join('');
+  backdrop.innerHTML = `<div class="modal-box" style="text-align:left;max-width:420px;">
+    <h3 style="text-align:center;">${esc(title)}</h3>
+    <p style="text-align:center;">${esc(message)}</p>
+    <div style="max-height:180px;overflow-y:auto;margin-bottom:14px;">${list}</div>
+    <div style="display:flex;gap:8px;">
+      <button type="button" id="batchCancelBtn" style="flex:1;">Annuler</button>
+      <button type="button" class="primary" id="batchConfirmBtn" style="flex:1;">Confirmer</button>
+    </div>
+  </div>`;
+  document.body.appendChild(backdrop);
+  const close = ()=>backdrop.remove();
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) close(); });
+  backdrop.querySelector('#batchCancelBtn').addEventListener('click', close);
+  backdrop.querySelector('#batchConfirmBtn').addEventListener('click', ()=>{ close(); onConfirm(); });
+}
+
+// The Exceptions accordion — only lists employees whose seasonal or promo
+// banner actually differs from the company default (custom content, or
+// forced on/off). Everyone else isn't shown, since there's nothing to
+// manage for them.
+function hasBannerOrPromoOverride(e){
+  return !!(e.bannerOverrideHtml || e.promoOverrideHtml || (e.bannerMode && e.bannerMode!=='auto') || (e.promoMode && e.promoMode!=='auto'));
+}
+function renderExceptionsPanel(){
+  const host = $('#exceptionsList');
+  if(!host) return;
+  const withExceptions = employees.filter(hasBannerOrPromoOverride);
+  if(!withExceptions.length){
+    host.innerHTML = '<p class="note">Aucune exception — tout le monde suit les réglages de l’entreprise ci-dessus.</p>';
+    return;
+  }
+  host.innerHTML = withExceptions.map(e=>{
+    const badges = [];
+    if(e.bannerOverrideHtml || (e.bannerMode && e.bannerMode!=='auto')){
+      const suffix = e.bannerMode==='off' ? ' désactivée' : (e.bannerMode==='on' && !e.bannerOverrideHtml) ? ' forcée' : ' personnalisée';
+      badges.push(`<span class="pill override">Saisonnière${suffix}</span>`);
+    }
+    if(e.promoOverrideHtml || (e.promoMode && e.promoMode!=='auto')){
+      const suffix = e.promoMode==='off' ? ' désactivée' : (e.promoMode==='on' && !e.promoOverrideHtml) ? ' forcée' : ' personnalisée';
+      badges.push(`<span class="pill override">Promo${suffix}</span>`);
+    }
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;">
+        <b style="font-size:13px;">${esc(e.displayName||e.email||'')}</b>
+        <div class="pills" style="margin-top:3px;">${badges.join('')}</div>
+      </div>
+      <button type="button" class="sm ghost-revert" data-exc-revert="${esc(e.id)}">↺ Revenir au défaut</button>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('[data-exc-revert]').forEach(btn=>{
+    btn.addEventListener('click', ()=>revertSingleException(btn.dataset.excRevert));
+  });
+}
+async function revertSingleException(id){
+  const e = employees.find(x=>x.id===id);
+  if(!e) return;
+  try{
+    await db.collection('employees').doc(id).update({bannerOverrideHtml:null, promoOverrideHtml:null, bannerMode:'auto', promoMode:'auto', updatedAt:new Date().toISOString()});
+    toast('Revenu au réglage de l’entreprise pour '+(e.displayName||e.email)+'.');
+  }catch(err){
+    toast('Erreur en rétablissant le défaut : '+err.message);
+  }
+}
+
+function isOverride(e){
+  return !!(e.nameOverride || e.titleOverride || e.phoneOverride || e.posteOverride || e.emailOverride ||
+    e.addressOverride || e.websiteUrlOverride || e.websiteLabelOverride || e.logoOverride ||
+    (e.bannerMode && e.bannerMode!=='auto') || (e.promoMode && e.promoMode!=='auto') ||
+    e.bannerOverrideHtml || e.promoOverrideHtml);
+}
+
+function showNewEmpForm(){
+  $('#newEmpForm').style.display = '';
+  $('#newEmpEmail').value=''; $('#newEmpName').value='';
+  $('#newEmpEmail').focus();
+}
+async function createEmployee(){
+  const email = $('#newEmpEmail').value.trim();
+  const displayName = $('#newEmpName').value.trim();
+  if(!email){ toast('Entrez un courriel.'); return; }
+  const id = slugify(email.split('@')[0]) + '-' + Date.now().toString(36);
+  const doc = { email, displayName, status:'brouillon',
+    bannerMode:'auto', promoMode:'auto', updatedAt:new Date().toISOString() };
+  await db.collection('employees').doc(id).set(doc);
+  activeId = id;
+  activeEditorTab = 'coord';
+  $('#newEmpForm').style.display = 'none';
+  toast('Employé créé.');
+}
+
+function renderEditorEmpty(){
+  $('#editorHost').innerHTML = '<div class="panel"><p class="note">Sélectionnez un employé à gauche, ou créez-en un nouveau.</p></div>';
+  renderPreviewEmpty();
+  renderPerEmployeeBanner(null);
+  updateCompanyPanelVisibility();
+}
+function renderPreviewEmpty(){
+  $('#previewHost').innerHTML = '<div class="empty-preview">Sélectionnez un employé pour voir l’aperçu de sa signature ici.</div>';
+}
+
+function fieldVal(id){ const el = document.getElementById(id); return el ? el.value : ''; }
+
+// Reformats any Quebec/Canadian phone number to the OQLF-recommended style —
+// area code, a space, the next three digits, a hyphen, then the last four
+// (e.g. "418 527-9222") — no matter how it was typed: with dots, no spaces,
+// parentheses, whatever. Only touches values that cleanly resolve to exactly
+// 10 digits, or 11 starting with "1" (a toll-free number, kept as
+// "1 800 567-1234"); anything else — including legacy values that already
+// have ", poste 1234" typed directly into this same field — is left exactly
+// as it was rather than risk mangling something that doesn't fit the mold.
+function formatPhoneOQLF(raw){
+  const s = String(raw||'').trim();
+  if(!s) return '';
+  const digits = s.replace(/\D/g,'');
+  if(digits.length===10){
+    return digits.slice(0,3)+' '+digits.slice(3,6)+'-'+digits.slice(6);
+  }
+  if(digits.length===11 && digits[0]==='1'){
+    return '1 '+digits.slice(1,4)+' '+digits.slice(4,7)+'-'+digits.slice(7);
+  }
+  return s;
+}
+
+// The extension lives in its own field now (posteOverride) instead of typed
+// inline into the phone field — this stitches the two back together the way
+// OQLF recommends writing it out: ", poste 2233" (word spelled out, comma
+// before it), only the digits of whatever was typed in the Poste field.
+function combinePhoneAndPoste(phone, poste){
+  const p = String(poste||'').replace(/\D/g,'');
+  return p ? (phone + ', poste ' + p) : phone;
+}
+
+// resolveTags: false (default) is for the everyday signature that Exchange's
+// transport rule stamps on — leaving %%DisplayName%%/%%Title%%/%%Email%% in
+// place is correct there, since Exchange fills those in from the sender's
+// own directory profile at send time. resolveTags: true is for anything the
+// Outlook add-in inserts directly into a message (variants) — no Exchange
+// merge step ever touches that HTML, so a blank field must fall back to this
+// employee's own real stored value instead, or it would show up as literal,
+// broken "%%...%%" text (this was the "%%Email%%" bug in variant signatures).
+// Bulletproof-fix marker: a real (non-comment) text node embedded at the end
+// of every generated signature's HTML, invisible to a human reader but
+// present as literal text content. Two things check for it independently:
+// (1) taskpane.js searches the compose body for this exact text to detect
+// whether Outlook's native signature feature has silently wiped out ours,
+// and (2) the Exchange transport rule (Deploy-Signature.ps1) checks for it
+// server-side as a second, independent condition before deciding whether to
+// skip its own stamp — so Exchange only backs off when BOTH the override
+// header AND this literal text are present, not just the header alone.
+// Must stay real text (not an HTML comment) since transport-rule content
+// matching does not see comments. If this string ever changes, taskpane.js's
+// SIGNATURE_MARKER_TEXT and the -MarkerText passed to Deploy-Signature.ps1
+// must be updated to match, or the whole safety net silently stops working.
+const SIGNATURE_MARKER_TEXT = 'GraphicaSigMarkerV1';
+const SIGNATURE_MARKER_HTML = `<div style="font-size:1px;line-height:1px;max-height:1px;height:1px;overflow:hidden;color:#ffffff;opacity:0.01;">${SIGNATURE_MARKER_TEXT}</div>`;
+
+function generate(e, opts){
+  opts = opts || {};
+  const resolveTags = !!opts.resolveTags;
+  const nameEff = e.nameOverride ? esc(e.nameOverride) : (resolveTags ? esc(e.displayName || '') : '%%DisplayName%%');
+  // Title has no real stored value anywhere (it normally only ever comes from
+  // Exchange's own directory merge) — so for a variant with no titleOverride,
+  // the best we can do is leave the title line blank rather than show a
+  // broken tag no one will ever resolve.
+  const titleEff = e.titleOverride ? esc(e.titleOverride) : (resolveTags ? '' : '%%Title%%');
+  const phoneEff = esc(combinePhoneAndPoste(formatPhoneOQLF(e.phoneOverride || company.companyPhone || ''), e.posteOverride));
+  const emailEff = e.emailOverride ? esc(e.emailOverride) : (resolveTags ? esc(e.email || '') : '%%Email%%');
+  const addressEff = esc(e.addressOverride || company.companyAddress || '');
+  const webUrlEff = esc(e.websiteUrlOverride || company.companyWebsiteUrl || '');
+  const webLabelEff = esc(e.websiteLabelOverride || company.companyWebsiteLabel || '');
+  const logoEff = esc(e.logoOverride || company.companyLogoUrl || '');
+
+  const bannerOn = e.bannerMode==='on' ? true : e.bannerMode==='off' ? false : !!company.seasonalBannerEnabled;
+  const promoOn = e.promoMode==='on' ? true : e.promoMode==='off' ? false : !!company.promoBannerEnabled;
+  const bannerBlock = bannerOn ? (e.bannerOverrideHtml || company.seasonalBannerHtml || '') : '';
+  const promoBlock = promoOn ? (e.promoOverrideHtml || company.promoBannerHtml || '') : '';
+
+  let html = template
+    .replaceAll('{{NAME}}', nameEff)
+    .replaceAll('{{TITLE}}', titleEff)
+    .replaceAll('{{PHONE}}', phoneEff)
+    .replaceAll('{{EMAIL}}', emailEff)
+    .replaceAll('{{ADDRESS}}', addressEff)
+    .replaceAll('{{WEBSITE_URL}}', webUrlEff)
+    .replaceAll('{{WEBSITE_LABEL}}', webLabelEff)
+    .replaceAll('{{LOGO_URL}}', logoEff)
+    .replace('{{PRODUCTION_TEXT}}', company.productionText || '')
+    .replace('{{DISCLAIMER_TEXT}}', company.disclaimerText || '')
+    .replace('{{BANNER_BLOCK}}', bannerBlock)
+    .replace('{{PROMO_BLOCK}}', promoBlock);
+  return html + SIGNATURE_MARKER_HTML;
+}
+
+// Wraps a string as a single-quoted POSIX shell argument (zsh/bash), so a
+// value containing spaces, quotes, or accents can be embedded safely in a
+// command meant to be pasted straight into a terminal.
+function shellSingleQuote(str){
+  return "'" + String(str).replace(/'/g, `'"'"'`) + "'";
+}
+
+// Embeds HTML as a literal, non-interpolating PowerShell here-string. Nothing
+// inside it — quotes, %%Tokens%%, accents, & < > — needs escaping for
+// PowerShell, since @'...'@ never interpolates. The one theoretical edge case
+// is generated HTML that happened to contain a line starting with `'@`
+// (which would end the here-string early); vanishingly unlikely for this
+// template, but noted here in case that ever changes.
+function powershellHereString(html){
+  return `@'\n${html}\n'@`;
+}
+
+function commandFor(e, html){
+  const override = isOverride(e);
+  const slug = slugify(e.displayName || e.email);
+  const folder = (company.localStudioPath || '~/Documents/Signature Studio').trim();
+  let cfgFile, ruleName, testUser, extra;
+  if(override){
+    ruleName = `Signature - ${e.displayName || e.email}`;
+    cfgFile = `signature-config-${slug}.html`;
+    testUser = e.email;
+    extra = ' -Priority 0 -StopProcessing';
+  } else {
+    ruleName = company.generalRuleName || 'Company Email Signature';
+    cfgFile = 'signature-config.html';
+    testUser = 'emiliana.braga@graphica.qc.ca';
+    extra = '';
+  }
+  // Fully self-contained: this single paste (a) launches PowerShell,
+  // (b) moves into the Signature Studio folder, (c) writes the EXACT HTML
+  // just approved above into the config file, then (d) runs the deploy
+  // script — so there is no separate "save this file first" step left to
+  // forget or to fall out of sync with what was approved in the Console.
+  // (That gap — approving here regenerated the HTML, but the old command
+  // only redeployed whatever was already sitting in the local file — was a
+  // real bug that briefly kept an old promo banner live after it looked
+  // fixed in the Console.)
+  let inner = `$sigHtml = ${powershellHereString(html)}\ncd "${folder}"\nSet-Content -LiteralPath ".\\${cfgFile}" -Value $sigHtml -NoNewline -Encoding UTF8\n.\\Deploy-Signature.ps1 -ConfigPath ".\\${cfgFile}" -RuleName "${ruleName}" -TestUser ${testUser}${extra}`;
+  const syncPayload = buildSyncPayloadIfEligible(e);
+  if(syncPayload){
+    inner = appendSyncStep(inner, syncPayload, (e.email||'').trim().toLowerCase());
+  }
+  // Emitted as plain PowerShell (no outer `pwsh -NoProfile -Command '...'`
+  // wrapper) — the earlier wrapped form used bash-style single-quote
+  // escaping ('"'"') meant for pasting into a POSIX shell that then
+  // launches PowerShell as a subprocess. In practice this is pasted
+  // straight into an already-open PowerShell/pwsh prompt, whose own quoting
+  // rules are different — that mismatch is what produced a ParserError
+  // ("Unrecognized token") the first time this included the extra
+  // Invoke-RestMethod step below. Plain PowerShell source, pasted directly
+  // into a PowerShell prompt, has no such mismatch.
+  const cmd = inner;
+  return { cfgFile, cmd };
+}
+
+// --- Outlook-preview sync (Console → add-in), folded into the same paste
+// as the real deploy command above. It does NOT touch Exchange or the
+// transport rules — it just pushes a literal (token-free) preview payload
+// to the add-in's KV store, matching the shape sync/build-kv-entries.js has
+// always built by hand.
+//
+// WHY THIS RIDES INSIDE THE DEPLOY COMMAND, RATHER THAN HAPPENING ON ITS OWN
+// THE MOMENT YOU CLICK APPROUVER: a published Console page (a Claude
+// Artifact) cannot make outbound network calls itself — the sandbox it runs
+// in silently blocks fetch()/XHR to any external site — and neither can a
+// scheduled background check on Claude's side, because this workspace's
+// network is limited to an allowlist that graphica-signatures.pages.dev
+// isn't on (and that allowlist isn't something available to add to on this
+// account's plan). Your own terminal has no such limit — it's exactly what
+// already let the PowerShell deploy command reach Exchange, and what let
+// `wrangler` reach Cloudflare. So the one paste you already do for the real
+// deploy now also pushes the Outlook preview, in the same breath.
+const NO_TITLE_PLACEHOLDER = '(titre du répertoire — non disponible dans cet aperçu)';
+
+function syncBannerOrPromoHtml(mode, imageUrl, rawHtml){
+  if(mode==='image' && imageUrl){
+    return `<img src="${esc(imageUrl)}" alt="" style="max-width:100%;display:block;">`;
+  }
+  return rawHtml || null;
+}
+function resolveSyncBanner(effective){
+  const on = effective.bannerMode==='on' ? true : effective.bannerMode==='off' ? false : !!company.seasonalBannerEnabled;
+  if(!on) return null;
+  if(effective.bannerOverrideHtml) return effective.bannerOverrideHtml;
+  return syncBannerOrPromoHtml(company.seasonalBannerMode, company.seasonalImageUrl, company.seasonalBannerHtml);
+}
+function resolveSyncPromo(effective){
+  const on = effective.promoMode==='on' ? true : effective.promoMode==='off' ? false : !!company.promoBannerEnabled;
+  if(!on) return null;
+  if(effective.promoOverrideHtml) return effective.promoOverrideHtml;
+  return syncBannerOrPromoHtml(company.promoBannerMode, company.promoImageUrl, company.promoBannerHtml);
+}
+function buildSyncPayload(draft){
+  return {
+    displayName: draft.nameOverride || draft.displayName || '',
+    title: draft.titleOverride || NO_TITLE_PLACEHOLDER,
+    phone: combinePhoneAndPoste(formatPhoneOQLF(draft.phoneOverride || company.companyPhone || ''), draft.posteOverride),
+    email: draft.emailOverride || draft.email || '',
+    websiteUrl: draft.websiteUrlOverride || company.companyWebsiteUrl || '',
+    websiteLabel: draft.websiteLabelOverride || company.companyWebsiteLabel || '',
+    logoUrl: draft.logoOverride || company.companyLogoUrl || '',
+    companyName: company.companyName || '',
+    bannerHtmlPreview: resolveSyncBanner(draft),
+    promoHtmlPreview: resolveSyncPromo(draft),
+    // The fully compiled HTML for THIS person's everyday signature, with
+    // every %%...%% merge tag already resolved to their real stored values
+    // (resolveTags:true — see generate()'s own comment). Exchange's transport
+    // rule still does the actual stamping when nothing else has touched the
+    // message; this copy exists ONLY so the Outlook add-in can insert the
+    // exact same signature directly into the body itself (see taskpane.js's
+    // auto-insert-on-compose logic) — without it, the add-in would have no
+    // way to show the everyday signature at all, only variants.
+    defaultHtmlResolved: generate(draft, {resolveTags: true}),
+    // `id` is included so the Outlook add-in can tell, on reload, which
+    // variant it already inserted into the current email (it flags the
+    // message with a hidden header carrying this id — see admin-sync.js /
+    // Deploy-Signature.ps1's matching transport-rule exception).
+    variants: (draft.variants||[]).map(v=>({ id: v.id, label: v.label||'', html: buildVariantHtml(draft, v) })),
+    syncedAt: new Date().toISOString()
+  };
+}
+
+// Started scoped to just Émiliana ("keep it just for me right now"), widened
+// on 2026-09-14 to also cover Hélène Potvin, Luc Leblanc, and J.C. Tirman —
+// the three colleagues who already had their own personal signature rule —
+// once the auto-insert-into-body feature reached a point worth rolling out
+// beyond a single person. A card outside this list works exactly as before
+// (generates the file + command to paste yourself, no automatic Outlook
+// preview sync). Widening this to more people later is a one-line change.
+const AUTO_SYNC_EMAILS = [
+  'emiliana.braga@graphica.qc.ca',
+  'helene.potvin@graphica.qc.ca',
+  'luc.leblanc@graphica.qc.ca',
+  'jc.tirman@graphica.qc.ca'
+];
+
+// NOTE ON HOW THIS ACTUALLY GETS TO OUTLOOK:
+// A published Console page (like this one) cannot make outbound network
+function buildSyncPayloadIfEligible(draft){
+  const email = (draft.email||'').trim().toLowerCase();
+  if(!AUTO_SYNC_EMAILS.includes(email)) return null;
+  return buildSyncPayload(draft);
+}
+
+// Matches the ADMIN_SYNC_SECRET Cloudflare Pages secret already set on the
+// add-in project. This is a light deterrent (this Console page is only as
+// private as its share link), not real security — same trust level as the
+// PIN it replaces.
+const ADMIN_SYNC_SECRET = 'NUnYrC83CYr5p7uGMku5cMoUIgrplODTxg69bCgubxQ';
+const ADMIN_SYNC_URL = 'https://graphica-signatures.pages.dev/api/admin-sync';
+
+// Appends an Invoke-RestMethod call to the end of an existing PowerShell
+// command string — pasting the whole thing still does the real deploy
+// first, then pushes the Outlook preview, and reports success/failure for
+// the sync separately (a sync failure never rolls back or blocks the real
+// deploy, which has already happened by that point). `payload` is embedded
+// as a single-quoted PowerShell here-string, same as the signature HTML
+// above, so nothing inside the JSON needs escaping.
+function appendSyncStep(cmdInner, payload, email){
+  const bodyJson = JSON.stringify({ email, payload });
+  const syncBlock = `\n$syncBody = ${powershellHereString(bodyJson)}\ntry {\n  Invoke-RestMethod -Uri "${ADMIN_SYNC_URL}" -Method Post -ContentType "application/json; charset=utf-8" -Headers @{ "x-admin-sync-secret" = "${ADMIN_SYNC_SECRET}" } -Body ([System.Text.Encoding]::UTF8.GetBytes($syncBody)) | Out-Null\n  Write-Host "Aperçu Outlook synchronisé."\n} catch {\n  Write-Host "Le déploiement réel a réussi, mais la synchronisation de l'aperçu Outlook a échoué : $_"\n}`;
+  return cmdInner + syncBlock;
+}
+
+function stageTrackHtml(e){
+  const approved = e.status==='approuvé';
+  return `<div class="stage-track">
+    <span class="stage-step${!approved?' current':''}">Brouillon</span>
+    <span class="stage-arrow">→</span>
+    <span class="stage-step${approved?' current':''}">Test${approved && !isOverride(e) ? ' (vous)' : ''}</span>
+    <span class="stage-arrow">→</span>
+    <span class="stage-step pending" title="Pas encore proposé depuis la Console — se fait manuellement, et seulement quand vous serez prête à élargir.">Déployé à tous</span>
+  </div>`;
+}
+
+function renderEditor(){
+  const e = employees.find(x=>x.id===activeId);
+  if(!e) return renderEditorEmpty();
+  const ov = isOverride(e);
+  const host = $('#editorHost');
+  host.innerHTML = `
+  <div class="panel editor-panel">
+    <div class="editor-head">
+      <div class="editor-head-row">
+        <div>
+          <div class="who-name">${esc(e.displayName||'(sans nom)')}</div>
+          <div class="em-sub">${esc(e.email||'')}</div>
+        </div>
+      </div>
+      ${stageTrackHtml(e)}
+    </div>
+
+    <div class="tabs">
+      <button class="${activeEditorTab==='coord'?'active':''}" data-tab="coord">Coordonnées</button>
+      <button class="${activeEditorTab==='variants'?'active':''}" data-tab="variants">Signatures supplémentaires${(e.variants&&e.variants.length)?` (${e.variants.length})`:''}</button>
+      <button class="${activeEditorTab==='deploy'?'active':''}" data-tab="deploy">Approbation</button>
+    </div>
+
+    <div class="tab-body">
+      <div class="tab-panel${activeEditorTab==='coord'?' active':''}" id="tab-coord">
+        <div class="row2">
+          <div class="field"><label>Nom</label><input type="text" id="f_displayName" value="${esc(e.displayName||'')}"></div>
+          <div class="field"><label>Courriel</label><input type="text" id="f_email" value="${esc(e.email||'')}"></div>
+        </div>
+        <div class="field">
+          <label>Département</label>
+          <div style="display:flex;gap:6px;">
+            <select id="f_department" style="flex:1;">${deptOptionsHtml(e.department)}</select>
+            <button type="button" class="sm" id="manageDeptBtn2" title="Gérer les départements">⚙</button>
+          </div>
+          <p class="note" style="margin-top:4px;">Sert seulement à filtrer et sélectionner des groupes d'employés dans la liste — n'affecte pas la signature.</p>
+        </div>
+        <details open>
+          <summary>Forcer des valeurs différentes (optionnel) — ex. numéro de poste</summary>
+          <p class="note" style="margin-top:8px;">Le champ affiche déjà la valeur par défaut (annuaire ou réglages de l'entreprise) en filigrane — écrivez seulement si vous voulez la remplacer pour cette personne. Le numéro de téléphone se corrige automatiquement au bon format (ex. « 418 527-9222 ») peu importe comment vous l'écrivez. Le numéro de poste se saisit séparément, dans son propre champ juste en dessous.</p>
+          <div id="overrideFields"></div>
+          <button type="button" class="sm" id="clearAllOverridesBtn" style="margin-top:4px;">↺ Annuler toutes les exceptions de coordonnées</button>
+        </details>
+        <button class="primary" id="saveDraftBtn" style="margin-top:14px;">Enregistrer le brouillon</button>
+      </div>
+
+      <div class="tab-panel${activeEditorTab==='variants'?' active':''}" id="tab-variants">
+        <div id="variantsHost"></div>
+      </div>
+
+      <div class="tab-panel${activeEditorTab==='deploy'?' active':''}" id="tab-deploy">
+        <p class="note">${ov ? 'Cette fiche a une exception — le déploiement lui sera propre.' : 'Fait partie de la règle générale, actuellement en test sur vous seule.'}</p>
+        <div class="field" style="margin-top:10px;">
+          <button class="primary" id="approveBtn">Approuver</button>
+        </div>
+        <div id="deployOutput">${(e.lastGeneratedHtml && e.lastCommand) ? deployOutputHtml(e.lastCfgFile||'signature-config.html', e.lastGeneratedHtml, e.lastCommand) : ''}</div>
+        ${e.approvedAt ? `<p class="note" style="margin-top:10px;">Dernière approbation : ${new Date(e.approvedAt).toLocaleString('fr-CA')}</p>`:''}
+        ${e.email && AUTO_SYNC_EMAILS.includes(e.email.trim().toLowerCase()) ? `<p class="note" style="margin-top:6px;">📋 Pour cette fiche, la commande ci-dessus met aussi à jour l'aperçu Outlook automatiquement — un seul collage fait les deux.</p>` : ''}
+      </div>
+    </div>
+  </div>`;
+
+  document.querySelectorAll('.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeEditorTab = btn.dataset.tab;
+      document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      $('#tab-'+btn.dataset.tab).classList.add('active');
+      updateCompanyPanelVisibility();
+    });
+  });
+
+  renderOverrideFields(e);
+
+  $('#saveDraftBtn').addEventListener('click', ()=>saveDraft(e));
+  $('#approveBtn').addEventListener('click', ()=>approve(e));
+  if($('#manageDeptBtn2')) $('#manageDeptBtn2').addEventListener('click', showDeptManager);
+  if(e.lastGeneratedHtml && e.lastCommand){ wireDeployOutputButtons(e.lastGeneratedHtml, e.lastCommand); }
+
+  renderPerEmployeeBanner(e);
+  renderVariantsTab(e);
+  showPreview(e);
+  updateCompanyPanelVisibility();
+}
+
+// The company-wide blocks (seasonal/promo banners, production block) only
+// make sense while editing Coordonnées — they're not relevant to
+// Approbation, whose only job is copying the deploy command, nor to
+// Signatures supplémentaires, whose fields are per-variant — so hide them
+// while either tab is showing, and bring them back on Coordonnées or when
+// no employee is selected at all.
+function updateCompanyPanelVisibility(){
+  const panel = $('#companySettingsPanel');
+  if(panel) panel.style.display = (activeEditorTab==='deploy' || activeEditorTab==='variants') ? 'none' : '';
+}
+
+// The 8 "Forcer des valeurs différentes" fields, each with its real default
+// (annuaire — unknown to the Console, so just a hint — or a company-wide
+// value we do know) so the field itself shows what a revert restores.
+const COORD_OVERRIDE_FIELDS = [
+  {key:'nameOverride', label:'Nom', placeholder: () => 'valeur annuaire'},
+  {key:'titleOverride', label:'Titre', placeholder: () => 'valeur annuaire'},
+  {key:'phoneOverride', label:'Téléphone (numéro seulement)', placeholder: () => company.companyPhone || 'valeur annuaire'},
+  {key:'posteOverride', label:'Poste (extension, optionnel)', placeholder: () => 'aucun'},
+  {key:'emailOverride', label:'Courriel affiché', placeholder: () => 'valeur annuaire'},
+  {key:'addressOverride', label:'Adresse', placeholder: () => company.companyAddress || 'adresse par défaut'},
+  {key:'websiteUrlOverride', label:'Site web URL', placeholder: () => company.companyWebsiteUrl || 'site par défaut'},
+  {key:'websiteLabelOverride', label:'Site web texte', placeholder: () => company.companyWebsiteLabel || 'texte par défaut'},
+  {key:'logoOverride', label:'Logo (URL)', placeholder: () => company.companyLogoUrl || 'logo par défaut'},
+];
+function hasCoordOverride(e){ return COORD_OVERRIDE_FIELDS.some(f=>e[f.key]); }
+
+function renderOverrideFields(e){
+  const host = $('#overrideFields');
+  if(!host) return;
+  host.innerHTML = COORD_OVERRIDE_FIELDS.map(f=>{
+    const val = e[f.key] || '';
+    const hasVal = !!val;
+    return `<div class="field">
+      <label>${f.label}${hasVal?' <span class="badge-override">exception</span>':''}</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" id="f_${f.key}" value="${esc(val)}" placeholder="${esc(f.placeholder())}" style="flex:1;">
+        ${hasVal?`<button type="button" class="sm ghost-revert" data-revert="${f.key}" title="Rétablir la valeur par défaut">↺ Rétablir</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  host.querySelectorAll('[data-revert]').forEach(btn=>{
+    btn.addEventListener('click', ()=>revertOverrideField(e, btn.dataset.revert));
+  });
+  const clearAllBtn = $('#clearAllOverridesBtn');
+  if(clearAllBtn) clearAllBtn.addEventListener('click', ()=>revertAllOverrideFields(e));
+}
+
+async function revertOverrideField(e, key){
+  // Collect whatever's currently in the form BEFORE clearing this one field
+  // and re-rendering — otherwise a partial {key: null} write would echo back
+  // via onSnapshot and wipe out any other not-yet-saved edit on this card,
+  // the same bug class fixed in syncCompanyFromForm() above.
+  const draft = collectDraft(e);
+  draft[key] = null;
+  Object.assign(e, draft);
+  renderEditor();
+  renderList();
+  try{
+    draft.updatedAt = new Date().toISOString();
+    await db.collection('employees').doc(e.id).update(draft);
+    toast('Valeur par défaut rétablie.');
+  }catch(err){
+    toast('Erreur en rétablissant la valeur par défaut : '+err.message);
+  }
+}
+async function revertAllOverrideFields(e){
+  const draft = collectDraft(e);
+  COORD_OVERRIDE_FIELDS.forEach(f=>{ draft[f.key] = null; });
+  Object.assign(e, draft);
+  renderEditor();
+  renderList();
+  try{
+    draft.updatedAt = new Date().toISOString();
+    await db.collection('employees').doc(e.id).update(draft);
+    toast('Toutes les exceptions de coordonnées ont été annulées.');
+  }catch(err){
+    toast('Erreur en annulant les exceptions : '+err.message);
+  }
+}
+
+// The per-person Auto/Forcer activé/désactivé toggle for each banner now
+// lives right next to that banner's shared content (in #companySettingsPanel)
+// instead of on its own tab — see renderEditor() above.
+function renderPerEmployeeBanner(e){
+  const seasHost = $('#seasPerEmpBox');
+  const promoHost = $('#promoPerEmpBox');
+  if(!seasHost || !promoHost) return;
+  if(!e){
+    seasHost.innerHTML = '<p class="note">Sélectionnez un employé à gauche pour forcer ce bandeau activé ou désactivé juste pour cette personne.</p>';
+    promoHost.innerHTML = '<p class="note">Sélectionnez un employé à gauche pour forcer ce bandeau activé ou désactivé juste pour cette personne.</p>';
+    return;
+  }
+  const firstName = (e.displayName||e.email||'').split(' ')[0];
+  seasHost.innerHTML = `
+    <label>Pour ${esc(firstName)} seulement</label>
+    <div class="modebar">
+      <button data-mode="auto" class="modeBtn" data-group="banner">Auto (${company.seasonalBannerEnabled?'activé':'désactivé'})</button>
+      <button data-mode="on" class="modeBtn" data-group="banner">Forcer activé</button>
+      <button data-mode="off" class="modeBtn" data-group="banner">Forcer désactivé</button>
+    </div>
+    <details${e.bannerOverrideHtml?' open':''}>
+      <summary>Contenu différent pour cette personne seulement (optionnel)</summary>
+      <div class="field" style="margin-top:8px;"><textarea id="f_bannerOverrideHtml" rows="4" placeholder="Laisser vide pour utiliser le bandeau de l'entreprise">${esc(e.bannerOverrideHtml||'')}</textarea></div>
+    </details>`;
+  promoHost.innerHTML = `
+    <label>Pour ${esc(firstName)} seulement</label>
+    <div class="modebar">
+      <button data-mode="auto" class="modeBtn" data-group="promo">Auto (${company.promoBannerEnabled?'activé':'désactivé'})</button>
+      <button data-mode="on" class="modeBtn" data-group="promo">Forcer activé</button>
+      <button data-mode="off" class="modeBtn" data-group="promo">Forcer désactivé</button>
+    </div>
+    <details${e.promoOverrideHtml?' open':''}>
+      <summary>Contenu différent pour cette personne seulement (optionnel)</summary>
+      <div class="field" style="margin-top:8px;"><textarea id="f_promoOverrideHtml" rows="4" placeholder="Laisser vide pour utiliser le bandeau de l'entreprise">${esc(e.promoOverrideHtml||'')}</textarea></div>
+    </details>`;
+
+  document.querySelectorAll('.modeBtn[data-group="banner"]').forEach(b=>{
+    b.classList.toggle('on', (e.bannerMode||'auto')===b.dataset.mode);
+    b.addEventListener('click', ()=>{ e._bannerModeDraft = b.dataset.mode; document.querySelectorAll('.modeBtn[data-group="banner"]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); showPreview(e); saveDraft(e); });
+  });
+  document.querySelectorAll('.modeBtn[data-group="promo"]').forEach(b=>{
+    b.classList.toggle('on', (e.promoMode||'auto')===b.dataset.mode);
+    b.addEventListener('click', ()=>{ e._promoModeDraft = b.dataset.mode; document.querySelectorAll('.modeBtn[data-group="promo"]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); showPreview(e); saveDraft(e); });
+  });
+}
+
+// --- Signatures supplémentaires (variantes) --------------------------------
+// Some employees occasionally need to sign as someone else — e.g. Dany
+// Lacasse writing on Roland Charette's behalf uses his title/extension but
+// her own email. That can never be automatic (the transport rule only knows
+// who's SENDING, never why), so instead each variant compiles into its own
+// HTML block the employee saves as an extra signature directly in their own
+// Outlook and picks manually when the occasion calls for it — exactly what
+// dany-for-roland-signature.html did by hand, now versioned in the Console.
+// This is entirely additive: an employee with no variants behaves exactly as
+// before, and the employee's own default signature is never touched by this.
+function newVariantId(){ return 'v_' + Math.random().toString(36).slice(2, 10); }
+
+// Session-only local preview thumbnails for variant dropzones, keyed by
+// "<variantId>_seas" / "<variantId>_promo" -> {dataUrl, filename}. Needed
+// because saving a variant (or toggling its mode) writes to the database,
+// which echoes back through the employees onSnapshot listener and triggers
+// a full renderEditor()/renderVariantsTab() rebuild — without this cache,
+// that rebuild would silently reset the dropzone back to its placeholder
+// text right after every save, making a just-dropped image look like it
+// vanished even though nothing about the saved data ever changed. Same
+// "never saved to the database" contract as the company-wide dropzones —
+// this cache only lives in the browser tab for this session.
+let variantLocalPreviews = {};
+
+const VARIANT_FIELDS = [
+  {key:'nameOverride', label:'Nom affiché'},
+  {key:'titleOverride', label:'Titre'},
+  {key:'phoneOverride', label:'Téléphone (numéro seulement)'},
+  {key:'posteOverride', label:'Poste (optionnel)'},
+  {key:'emailOverride', label:'Courriel affiché'},
+];
+
+function renderVariantsTab(e){
+  const host = $('#variantsHost');
+  if(!host) return;
+  const variants = e.variants || [];
+  host.innerHTML = `
+    <p class="note" style="margin-bottom:10px;">Pour les personnes qui doivent parfois signer différemment selon l'occasion (ex. « Dany, pour Roland »). Pour les courriels synchronisés automatiquement (voir Approbation), la personne peut cliquer directement sur cette variante dans le panneau « Signature Graphica » d'Outlook au moment d'écrire ce courriel-là — elle s'ajoute tout de suite à ce message précis, sans copier-coller, et sa signature automatique habituelle revient d'elle-même pour ses prochains courriels. Pour tout le monde, le bouton « Copier le code HTML » ci-dessous reste disponible pour l'enregistrer soi-même comme signature additionnelle dans Outlook. Pour une bannière saisonnière ou promo différente sur une variante, collez simplement le lien de l'image (hébergée sur Wix) dans le champ « Image — lien Wix » de cette variante — la Console construit le code HTML pour vous. Après avoir changé une variante, cliquez « Enregistrer » : la version à jour sera utilisée automatiquement la prochaine fois qu'elle est choisie dans Outlook.</p>
+    <div id="variantCards"></div>
+    <button type="button" class="sm" id="addVariantBtn" style="margin-top:8px;">+ Nouvelle variante</button>`;
+  const cardsHost = host.querySelector('#variantCards');
+  cardsHost.innerHTML = variants.length
+    ? variants.map(v => variantCardHtml(e, v)).join('')
+    : '<p class="note">Aucune variante pour l&#8217;instant.</p>';
+  variants.forEach(v => wireVariantCard(e, v));
+  host.querySelector('#addVariantBtn').addEventListener('click', () => addVariant(e));
+}
+
+// Renders whatever should sit inside a variant dropzone right now: the
+// cached local preview from variantLocalPreviews if one exists for this
+// variant+kind (see the cache's own comment above for why this is needed),
+// or the normal placeholder text otherwise.
+function dropzoneInnerContentHtml(cacheKey){
+  const cached = variantLocalPreviews[cacheKey];
+  if(cached){
+    return `<img class="dz-preview" src="${cached.dataUrl}" alt=""><div class="dz-filename">${esc(cached.filename||'')} — cliquez ou glissez pour changer</div>`;
+  }
+  return '<span>Glissez une image ici, ou cliquez pour en choisir une</span>';
+}
+
+function variantCardHtml(e, v){
+  const bannerMode = v.bannerMode || 'auto';
+  const promoMode = v.promoMode || 'auto';
+  // "Auto" for a variant follows this employee's OWN effective setting (their
+  // own override if any, else the company default) — not a separate default
+  // of its own — so the label here shows what Auto actually resolves to.
+  const empBannerOn = e.bannerMode==='on' ? true : e.bannerMode==='off' ? false : !!company.seasonalBannerEnabled;
+  const empPromoOn = e.promoMode==='on' ? true : e.promoMode==='off' ? false : !!company.promoBannerEnabled;
+  return `<div class="panel" style="padding:10px;margin-bottom:10px;" data-variant-card="${esc(v.id)}">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+      <input type="text" class="v-label" data-vid="${esc(v.id)}" value="${esc(v.label||'')}" placeholder="Nom de la variante (ex. « Dany, pour Roland »)" style="flex:1;font-weight:600;">
+      <button type="button" class="sm danger" data-del-variant="${esc(v.id)}" title="Supprimer cette variante">Supprimer</button>
+    </div>
+    <div class="row2">
+      ${VARIANT_FIELDS.map(f=>`<div class="field"><label>${f.label}</label><input type="text" class="v-field" data-vid="${esc(v.id)}" data-key="${f.key}" value="${esc(v[f.key]||'')}" placeholder="${esc(e[f.key]||'valeur habituelle')}"></div>`).join('')}
+    </div>
+    <p class="note" style="margin-top:2px;">Un champ laissé vide reprend la valeur habituelle de cette personne.</p>
+
+    <div class="per-emp-box" style="margin-top:10px;">
+      <label>Bannière saisonnière — pour cette variante seulement</label>
+      <div class="modebar">
+        <button type="button" class="v-modeBtn${bannerMode==='auto'?' on':''}" data-vid="${esc(v.id)}" data-group="bannerMode" data-mode="auto">Auto (comme sa signature habituelle — ${empBannerOn?'activée':'désactivée'})</button>
+        <button type="button" class="v-modeBtn${bannerMode==='on'?' on':''}" data-vid="${esc(v.id)}" data-group="bannerMode" data-mode="on">Forcer activée</button>
+        <button type="button" class="v-modeBtn${bannerMode==='off'?' on':''}" data-vid="${esc(v.id)}" data-group="bannerMode" data-mode="off">Forcer désactivée</button>
+      </div>
+      <div class="dropzone" id="vSeasDropzone_${esc(v.id)}" style="margin-top:8px;">
+        <input type="file" id="vSeasFileInput_${esc(v.id)}" accept="image/*" style="display:none;">
+        <div class="dropzone-inner" id="vSeasDropzoneInner_${esc(v.id)}">${dropzoneInnerContentHtml(v.id+'_seas')}</div>
+      </div>
+      <p class="note" style="margin-top:6px;">Aperçu visuel local seulement, pour vérifier que c'est la bonne image. Une fois hébergée sur Wix, collez son lien juste ici :</p>
+      <div class="field" style="margin-top:8px;"><label>Image — lien Wix</label><input type="url" class="v-bannerImageUrl" data-vid="${esc(v.id)}" value="${esc(v.bannerImageUrl||'')}" placeholder="https://…/banniere.jpg"></div>
+      <details${v.bannerOverrideHtml?' open':''} style="margin-top:6px;">
+        <summary>Code HTML personnalisé à la place (optionnel — pour un contenu plus qu'une simple image)</summary>
+        <div class="field" style="margin-top:8px;"><textarea class="v-bannerHtml" data-vid="${esc(v.id)}" rows="4" placeholder="Laisser vide pour utiliser le lien ci-dessus, ou la bannière habituelle de cette personne">${esc(v.bannerOverrideHtml||'')}</textarea></div>
+      </details>
+    </div>
+
+    <div class="per-emp-box" style="margin-top:10px;">
+      <label>Bannière promotionnelle — pour cette variante seulement</label>
+      <div class="modebar">
+        <button type="button" class="v-modeBtn${promoMode==='auto'?' on':''}" data-vid="${esc(v.id)}" data-group="promoMode" data-mode="auto">Auto (comme sa signature habituelle — ${empPromoOn?'activée':'désactivée'})</button>
+        <button type="button" class="v-modeBtn${promoMode==='on'?' on':''}" data-vid="${esc(v.id)}" data-group="promoMode" data-mode="on">Forcer activée</button>
+        <button type="button" class="v-modeBtn${promoMode==='off'?' on':''}" data-vid="${esc(v.id)}" data-group="promoMode" data-mode="off">Forcer désactivée</button>
+      </div>
+      <div class="dropzone" id="vPromoDropzone_${esc(v.id)}" style="margin-top:8px;">
+        <input type="file" id="vPromoFileInput_${esc(v.id)}" accept="image/*" style="display:none;">
+        <div class="dropzone-inner" id="vPromoDropzoneInner_${esc(v.id)}">${dropzoneInnerContentHtml(v.id+'_promo')}</div>
+      </div>
+      <p class="note" style="margin-top:6px;">Aperçu visuel local seulement, pour vérifier que c'est la bonne image. Une fois hébergée sur Wix, collez son lien juste ici :</p>
+      <div class="field" style="margin-top:8px;"><label>Image — lien Wix</label><input type="url" class="v-promoImageUrl" data-vid="${esc(v.id)}" value="${esc(v.promoImageUrl||'')}" placeholder="https://…/promo.png"></div>
+      <details${v.promoOverrideHtml?' open':''} style="margin-top:6px;">
+        <summary>Code HTML personnalisé à la place (optionnel — pour un contenu plus qu'une simple image)</summary>
+        <div class="field" style="margin-top:8px;"><textarea class="v-promoHtml" data-vid="${esc(v.id)}" rows="4" placeholder="Laisser vide pour utiliser le lien ci-dessus, ou la bannière habituelle de cette personne">${esc(v.promoOverrideHtml||'')}</textarea></div>
+      </details>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button type="button" class="sm" data-save-variant="${esc(v.id)}">Enregistrer</button>
+      <button type="button" class="sm" data-gen-variant="${esc(v.id)}">Générer le code HTML</button>
+    </div>
+    <div class="variant-output" data-output-for="${esc(v.id)}" style="margin-top:8px;"></div>
+  </div>`;
+}
+
+function wireVariantCard(e, v){
+  const card = document.querySelector(`[data-variant-card="${v.id}"]`);
+  if(!card) return;
+  card.querySelector(`[data-save-variant="${v.id}"]`).addEventListener('click', ()=>saveVariant(e, v.id));
+  card.querySelector(`[data-gen-variant="${v.id}"]`).addEventListener('click', ()=>generateVariant(e, v.id));
+  card.querySelector(`[data-del-variant="${v.id}"]`).addEventListener('click', ()=>deleteVariant(e, v.id));
+  card.querySelectorAll('.v-modeBtn').forEach(btn=>{
+    btn.addEventListener('click', ()=>setVariantMode(e, v.id, btn.dataset.group, btn.dataset.mode));
+  });
+  // Same "local preview only" contract as the company-wide dropzones above —
+  // reuses that exact wireDropzone()/renderDropzonePreview() machinery, just
+  // pointed at this variant's own dropzone/textarea pair instead of the
+  // shared company fields. Dropping an image here can't host it anywhere an
+  // outgoing email could reach, so it's a visual reference only, to help
+  // compose the HTML below — never written into the textarea itself, so a
+  // large data: URI can never end up saved into this variant's stored HTML.
+  wireDropzone(`vSeasDropzone_${v.id}`, `vSeasFileInput_${v.id}`, (dataUrl, filename)=>{
+    variantLocalPreviews[v.id+'_seas'] = { dataUrl, filename };
+    renderDropzonePreview(`vSeasDropzoneInner_${v.id}`, dataUrl, filename);
+    toast('Image chargée en aperçu — hébergez-la sur Wix puis collez le lien dans le champ « Image — lien Wix » ci-dessous.');
+  });
+  wireDropzone(`vPromoDropzone_${v.id}`, `vPromoFileInput_${v.id}`, (dataUrl, filename)=>{
+    variantLocalPreviews[v.id+'_promo'] = { dataUrl, filename };
+    renderDropzonePreview(`vPromoDropzoneInner_${v.id}`, dataUrl, filename);
+    toast('Image chargée en aperçu — hébergez-la sur Wix puis collez le lien dans le champ « Image — lien Wix » ci-dessous.');
+  });
+}
+
+// Banner/promo mode (auto/on/off) saves immediately on click, same as the
+// per-employee toggle above — the free-text override fields save with the
+// card's own "Enregistrer" button instead, since those need typing first.
+async function setVariantMode(e, vid, group, mode){
+  const variants = (e.variants||[]).map(v => v.id===vid ? {...v, [group]: mode} : v);
+  e.variants = variants;
+  renderVariantsTab(e);
+  try{
+    await db.collection('employees').doc(e.id).update({ variants, updatedAt:new Date().toISOString() });
+  }catch(err){
+    toast('Erreur : '+err.message);
+  }
+}
+
+function collectVariantFromCard(vid){
+  const label = document.querySelector(`.v-label[data-vid="${vid}"]`)?.value.trim() || '';
+  const fields = {};
+  document.querySelectorAll(`.v-field[data-vid="${vid}"]`).forEach(inp=>{
+    const val = inp.value.trim();
+    fields[inp.dataset.key] = inp.dataset.key === 'phoneOverride' ? (val ? formatPhoneOQLF(val) : null) : (val || null);
+  });
+  const bannerOverrideHtml = document.querySelector(`.v-bannerHtml[data-vid="${vid}"]`)?.value.trim() || null;
+  const promoOverrideHtml = document.querySelector(`.v-promoHtml[data-vid="${vid}"]`)?.value.trim() || null;
+  const bannerImageUrl = document.querySelector(`.v-bannerImageUrl[data-vid="${vid}"]`)?.value.trim() || null;
+  const promoImageUrl = document.querySelector(`.v-promoImageUrl[data-vid="${vid}"]`)?.value.trim() || null;
+  return { label, ...fields, bannerOverrideHtml, promoOverrideHtml, bannerImageUrl, promoImageUrl };
+}
+
+async function addVariant(e){
+  const v = { id:newVariantId(), label:'', nameOverride:null, titleOverride:null, phoneOverride:null, posteOverride:null, emailOverride:null,
+    bannerMode:'auto', promoMode:'auto', bannerOverrideHtml:null, promoOverrideHtml:null,
+    bannerImageUrl:null, promoImageUrl:null, createdAt:new Date().toISOString() };
+  const variants = [...(e.variants||[]), v];
+  e.variants = variants;
+  renderVariantsTab(e);
+  try{
+    await db.collection('employees').doc(e.id).update({ variants, updatedAt:new Date().toISOString() });
+  }catch(err){
+    toast('Erreur en ajoutant la variante : '+err.message);
+  }
+}
+
+async function saveVariant(e, vid){
+  const updated = collectVariantFromCard(vid);
+  const variants = (e.variants||[]).map(v => v.id===vid ? {...v, ...updated} : v);
+  e.variants = variants;
+  try{
+    await db.collection('employees').doc(e.id).update({ variants, updatedAt:new Date().toISOString() });
+    toast('Variante enregistrée.');
+  }catch(err){
+    toast('Erreur en enregistrant la variante : '+err.message);
+  }
+}
+
+async function deleteVariant(e, vid){
+  const variants = (e.variants||[]).filter(v=>v.id!==vid);
+  e.variants = variants;
+  delete variantLocalPreviews[vid+'_seas'];
+  delete variantLocalPreviews[vid+'_promo'];
+  renderVariantsTab(e);
+  try{
+    await db.collection('employees').doc(e.id).update({ variants, updatedAt:new Date().toISOString() });
+    toast('Variante supprimée.');
+  }catch(err){
+    toast('Erreur en supprimant la variante : '+err.message);
+  }
+}
+
+// A plain hosted-image link (the common case — "just paste the Wix link") is
+// wrapped into the same <img> markup used everywhere else in the Console, so
+// nobody needs to hand-write HTML just to drop in one picture. The raw HTML
+// box stays available underneath for anyone who needs more than that (a
+// clickable banner, text plus an image, etc.) and always wins if filled in.
+function autoImageBannerHtml(url){
+  if(!url) return null;
+  return `<tr><td colspan="2" style="padding-top:8px;"><img src="${esc(url)}" alt="" style="max-width:600px;width:100%;display:block;"></td></tr>`;
+}
+
+// A variant only carries what makes it different — anything it leaves blank
+// falls back to this employee's own usual value (annuaire, company defaults,
+// or this employee's own existing overrides), never to another employee's.
+function effectiveVariantFields(emp, variant){
+  const merged = {};
+  ['nameOverride','titleOverride','phoneOverride','posteOverride','emailOverride','addressOverride','websiteUrlOverride','websiteLabelOverride','logoOverride'].forEach(k=>{
+    merged[k] = variant[k] || emp[k] || null;
+  });
+  merged.bannerMode = variant.bannerMode || emp.bannerMode || 'auto';
+  merged.promoMode = variant.promoMode || emp.promoMode || 'auto';
+  merged.bannerOverrideHtml = variant.bannerOverrideHtml || autoImageBannerHtml(variant.bannerImageUrl) || emp.bannerOverrideHtml || null;
+  merged.promoOverrideHtml = variant.promoOverrideHtml || autoImageBannerHtml(variant.promoImageUrl) || emp.promoOverrideHtml || null;
+  merged.displayName = emp.displayName;
+  merged.email = emp.email;
+  return merged;
+}
+
+function buildVariantHtml(emp, variant){
+  return generate(effectiveVariantFields(emp, variant), {resolveTags: true});
+}
+
+function generateVariant(e, vid){
+  const current = collectVariantFromCard(vid);
+  const stored = (e.variants||[]).find(v=>v.id===vid) || {};
+  const variant = { ...stored, ...current };
+  const html = buildVariantHtml(e, variant);
+  const out = document.querySelector(`[data-output-for="${vid}"]`);
+  if(!out) return;
+  out.innerHTML = `
+    <p class="note" style="margin:6px 0;"><b>${esc(variant.label || 'Cette variante')}</b> — à enregistrer manuellement comme signature additionnelle dans Outlook, puis à choisir soi-même selon l'occasion.</p>
+    <textarea rows="8" readonly>${esc(html)}</textarea>
+    <button type="button" class="ghost copybtn sm" style="margin-top:4px;" data-copy-variant="${esc(vid)}">Copier le HTML</button>`;
+  out.querySelector(`[data-copy-variant="${vid}"]`).addEventListener('click', ()=>copyText(html));
+}
+
+function deployOutputHtml(cfgFile, html, cmd){
+  return `
+    <hr class="hr">
+    <h3>Commande à exécuter</h3>
+    <button class="ghost copybtn" id="copyCmdBtn">Copier la commande</button>
+    <div class="cmd" id="cmdOut">${esc(cmd)}</div>
+    <p class="note" style="margin-top:8px;">Collez dans <b>une fenêtre PowerShell (pwsh)</b> — si vous êtes dans un terminal ordinaire, tapez <code>pwsh</code> d'abord. Un seul collage fait tout : enregistrement du fichier et déploiement.</p>
+    <details style="margin-top:10px;">
+      <summary style="cursor:pointer;font-size:12px;color:var(--text-faint);">Voir le HTML inclus dans la commande (référence seulement)</summary>
+      <textarea rows="10" readonly id="htmlOut" style="margin-top:8px;">${esc(html)}</textarea>
+      <button class="ghost copybtn sm" id="copyHtmlBtn" style="margin-top:4px;">Copier le HTML</button>
+    </details>`;
+}
+
+function wireDeployOutputButtons(html, cmd){
+  const hBtn = $('#copyHtmlBtn'), cBtn = $('#copyCmdBtn');
+  if(hBtn) hBtn.addEventListener('click', ()=>copyText(html));
+  if(cBtn) cBtn.addEventListener('click', ()=>copyText(cmd));
+}
+
+function collectDraft(e){
+  const g = id => document.getElementById(id)?.value.trim() || '';
+  return {
+    displayName: g('f_displayName'), email: g('f_email'),
+    department: document.getElementById('f_department')?.value || '',
+    nameOverride: g('f_nameOverride')||null, titleOverride: g('f_titleOverride')||null,
+    phoneOverride: g('f_phoneOverride') ? formatPhoneOQLF(g('f_phoneOverride')) : null,
+    posteOverride: g('f_posteOverride')||null,
+    emailOverride: g('f_emailOverride')||null,
+    addressOverride: g('f_addressOverride')||null,
+    websiteUrlOverride: g('f_websiteUrlOverride')||null, websiteLabelOverride: g('f_websiteLabelOverride')||null,
+    logoOverride: g('f_logoOverride')||null,
+    bannerMode: e._bannerModeDraft || e.bannerMode || 'auto',
+    promoMode: e._promoModeDraft || e.promoMode || 'auto',
+    bannerOverrideHtml: g('f_bannerOverrideHtml')||null,
+    promoOverrideHtml: g('f_promoOverrideHtml')||null
+  };
+}
+
+async function saveDraft(e){
+  const draft = collectDraft(e);
+  draft.status = 'brouillon';
+  draft.updatedAt = new Date().toISOString();
+  await db.collection('employees').doc(e.id).update(draft);
+  toast('Brouillon enregistré.');
+}
+
+function showPreview(e){
+  const draft = {...e, ...collectDraft(e)};
+  const html = generate(draft);
+
+  const nameShow = draft.nameOverride || (draft.displayName || '(nom)');
+  const titleShow = draft.titleOverride || '(titre — annuaire)';
+  const phoneShow = combinePhoneAndPoste(formatPhoneOQLF(draft.phoneOverride || company.companyPhone || ''), draft.posteOverride) || '(téléphone — à définir dans Réglages)';
+  const emailShow = draft.emailOverride || draft.email || '(courriel — annuaire)';
+  const addressShow = esc(draft.addressOverride || company.companyAddress || '');
+  const webLabelShow = esc(draft.websiteUrlOverride ? (draft.websiteLabelOverride||draft.websiteUrlOverride) : (company.companyWebsiteLabel||''));
+
+  const bannerOn = draft.bannerMode==='on' ? true : draft.bannerMode==='off' ? false : !!company.seasonalBannerEnabled;
+  const promoOn = draft.promoMode==='on' ? true : draft.promoMode==='off' ? false : !!company.promoBannerEnabled;
+  // A person with their own banner/promo override should see THEIR banner
+  // here, not the company one — this used to always show the company
+  // banner regardless of any override, so anyone given a custom banner via
+  // the batch banner builder never actually saw it reflected in their Aperçu.
+  const bannerPreview = bannerOn ? (previewSafeHtml(draft.bannerOverrideHtml) || seasonalBannerPreviewHtml()) : '';
+  const promoPreview = promoOn ? (previewSafeHtml(draft.promoOverrideHtml) || buildPromoHtml(company.promoBannerMode, company.promoImageUrl, company.promoLink, company.promoText, true, promoLocalPreview)) : '';
+
+  const sigHtml = previewSignatureHtml(esc(nameShow), esc(titleShow), esc(phoneShow), esc(emailShow), addressShow, '', webLabelShow, company.productionText||'', bannerPreview, promoPreview, company.disclaimerText||'');
+
+  const host = $('#previewHost');
+  host.innerHTML = `<div class="preview-chrome">
+      <div class="preview-mailhead">
+        <div><b>De :</b> ${esc(nameShow)} &lt;${esc(draft.email||'')}&gt;</div>
+        <div><b>À :</b> client@exemple.com</div>
+        <div><b>Objet :</b> Suivi de votre commande</div>
+      </div>
+      <div class="preview-body">
+        Bonjour,<br><br>Voici le suivi demandé.<br><br>Cordialement,
+        <div style="margin-top:18px;padding-top:12px;border-top:1px solid #eee;">${sigHtml}</div>
+      </div>
+    </div>
+    <details class="danger-zone" style="margin-top:12px;">
+      <summary>Zone dangereuse — code HTML</summary>
+      <div style="margin-top:10px;">
+        <label>Code HTML qui sera déployé pour cette personne</label>
+        <textarea rows="10" readonly style="margin-top:4px;">${esc(html)}</textarea>
+      </div>
+    </details>`;
+}
+
+async function approve(e){
+  const draft = {...e, ...collectDraft(e)};
+  const html = generate(draft);
+  const { cfgFile, cmd } = commandFor(draft, html);
+  const eligibleForAutoSync = !!buildSyncPayloadIfEligible(draft);
+  const update = {...collectDraft(e), status:'approuvé', approvedAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString(), lastGeneratedHtml: html, lastCommand: cmd, lastCfgFile: cfgFile,
+    deployedAt: null};
+
+  await db.collection('employees').doc(e.id).update(update);
+  $('#deployOutput').innerHTML = deployOutputHtml(cfgFile, html, cmd);
+  wireDeployOutputButtons(html, cmd);
+
+  const modalExtra = eligibleForAutoSync
+    ? `<br><br>📋 La commande ci-dessous met maintenant à jour <b>à la fois</b> la vraie signature ET l'aperçu Outlook, en un seul collage.`
+    : '';
+  toast('Approuvé — fichier et commande générés.');
+  showModal('✅', 'Approuvé !', `La signature de <b>${esc(e.displayName||e.email)}</b> a été approuvée. Le fichier HTML et la commande de déploiement sont prêts un peu plus bas, dans l'onglet Approbation — rien n'a encore été déployé <i>réellement</i> tant que vous n'avez pas exécuté la commande vous-même.${modalExtra}`);
+}
+
+init();
+</script>
+
+
+</body></html>
